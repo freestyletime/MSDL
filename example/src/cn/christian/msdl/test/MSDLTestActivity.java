@@ -97,7 +97,7 @@ public class MSDLTestActivity extends Activity implements View.OnClickListener{
                         break Loop;
                     case ERROR:
                         goneView(item.bar);
-                        Toast.makeText(this, DownLoadException.code2message(task.errorCode), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, task.e.getMessage(), Toast.LENGTH_SHORT).show();
                         break Loop;
                 }
 
