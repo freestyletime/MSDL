@@ -44,38 +44,32 @@ class DownLoadTaskRunnable implements Runnable {
 
     @Override
     public void run() {
-        if(check() == 0){
+        if(check()){
             try {
                 download(setting());
-            } catch (SocketTimeoutException e){
+            }catch (IOException e) {
                 e.printStackTrace();
                 task.status = DownLoadTaskStatus.ERROR;
-                task.errorCode = 1007;
-            } catch (SocketException e){
-                e.printStackTrace();
-                task.status = DownLoadTaskStatus.ERROR;
-                task.errorCode = 1008;
-            } catch (IOException e) {
-                e.printStackTrace();
-                task.status = DownLoadTaskStatus.ERROR;
-                task.errorCode = 1004;
+                task.e = new DownLoadException(e);
             }
         }
     }
 
     //-----------------------------------------
 
-    private int check(){
+    private boolean check(){
         if(task.path.contains("sdcard")){
             if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
                 task.status = DownLoadTaskStatus.ERROR;
-                return task.errorCode = 1001;
+                task.e = new DownLoadException(1001);
+                return false;
             }
         }
 
         if(task.url == null || !URLUtil.isValidUrl(task.url)){
             task.status = DownLoadTaskStatus.ERROR;
-            return task.errorCode = 1002;
+            task.e = new DownLoadException(1002);
+            return false;
         }
 
         file = new File(task.path);
@@ -87,55 +81,75 @@ class DownLoadTaskRunnable implements Runnable {
                 e.printStackTrace();
                 file = null;
                 task.status = DownLoadTaskStatus.ERROR;
-                return task.errorCode = 1003;
+                task.e = new DownLoadException(1003);
+                return false;
             }
         }
-        return 0;
+
+        if(!DownLoadManagerService.NET_STATE){
+            task.status = DownLoadTaskStatus.ERROR;
+            task.e = new DownLoadException(1004);
+            return false;
+        }
+
+        return true;
     }
 
     private HttpURLConnection setting() throws IOException {
         URL url = new URL(task.url);
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        long length = Long.parseLong(conn.getHeaderField("Content-Length"));
-        conn.disconnect();
+        long length;
 
-        if(length != file.length()){
+        try {
 
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setDoOutput(false);
-            conn.setDoInput(true);
-            conn.setUseCaches(false);
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
-            if(TIMEOUT_CONN > 0)
-                conn.setConnectTimeout(TIMEOUT_CONN);
-            if(TIMEOUT_READ > 0)
-                conn.setReadTimeout(TIMEOUT_READ);
+            length = Long.parseLong(conn.getHeaderField("Content-Length"));
+            conn.disconnect();
 
-            conn.setRequestProperty("Accept-Encoding", "musixmatch");
-            conn.setRequestProperty("Content-Type", "application/stream");
-            conn.setRequestProperty("Range", "bytes=" + file.length() + "-");
+            if(length != file.length()){
+
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setDoOutput(false);
+                conn.setDoInput(true);
+                conn.setUseCaches(false);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setRequestMethod("GET");
+                if(TIMEOUT_CONN > 0)
+                    conn.setConnectTimeout(TIMEOUT_CONN);
+                if(TIMEOUT_READ > 0)
+                    conn.setReadTimeout(TIMEOUT_READ);
+
+                conn.setRequestProperty("Accept-Encoding", "musixmatch");
+                conn.setRequestProperty("Content-Type", "application/stream");
+                conn.setRequestProperty("Range", "bytes=" + file.length() + "-");
 //            conn.setRequestProperty("Connection","Keep-Alive");
 //            conn.setRequestProperty("Cache-Control","no-cache");
-            conn.connect();
+                conn.connect();
 
-            int code = conn.getResponseCode();
+                int code = conn.getResponseCode();
 
-            task.status = DownLoadTaskStatus.RUNNING;
-            task.length = length;
-            if (code == HttpStatus.SC_OK) {
-                file.deleteOnExit();
-                file.createNewFile();
-            } else if (code == HttpStatus.SC_PARTIAL_CONTENT) {
+                task.status = DownLoadTaskStatus.RUNNING;
+                task.length = length;
+
+                if (code == HttpStatus.SC_OK) {
+                    file.deleteOnExit();
+                    file.createNewFile();
+                } else if (code == HttpStatus.SC_PARTIAL_CONTENT) {
+                    task.process = file.length();
+                } else {
+                    task.status = DownLoadTaskStatus.ERROR;
+                    task.e = new DownLoadException(code);
+                }
+            }else{
+                task.status = DownLoadTaskStatus.FINISH;
+                task.length = length;
                 task.process = file.length();
-            } else {
-                task.status = DownLoadTaskStatus.ERROR;
-                task.errorCode = code;
             }
-        }else{
-            task.status = DownLoadTaskStatus.FINISH;
-            task.length = length;
-            task.process = file.length();
+
+        }catch (Exception e){
+            conn.disconnect();
+            e.printStackTrace();
+            task.status = DownLoadTaskStatus.ERROR;
+            task.e = new DownLoadException(1004);
         }
 
         return conn;
@@ -155,17 +169,22 @@ class DownLoadTaskRunnable implements Runnable {
                 if(task.isCancle){
                     close(conn, is, raf);
                     task.status = DownLoadTaskStatus.CANCLE;
-                    break;
+                    return;
                 }else if(task.isPause){
                     close(conn, is, raf);
                     task.status = DownLoadTaskStatus.PAUSE;
-                    break;
+                    return;
+                }else if(!DownLoadManagerService.NET_STATE){
+                    close(conn, is, raf);
+                    task.status = DownLoadTaskStatus.ERROR;
+                    task.e = new DownLoadException(1004);
+                    return;
                 }else{
                     if ((offset = is.read(bytes, 0, buffer)) > 0) {
                         if (!file.exists()) {
                             close(conn, is, raf);
                             task.status = DownLoadTaskStatus.ERROR;
-                            task.errorCode = 1005;
+                            task.e = new DownLoadException(1005);
                             break;
                         }
 
@@ -180,7 +199,7 @@ class DownLoadTaskRunnable implements Runnable {
                         } else {
                             file.deleteOnExit();
                             task.status = DownLoadTaskStatus.ERROR;
-                            task.errorCode = 1006;
+                            task.e = new DownLoadException(1006);
                             break;
                         }
                     }

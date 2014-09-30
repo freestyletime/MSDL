@@ -21,6 +21,10 @@ public class DownLoadException extends RuntimeException {
         super(msg);
     }
 
+    public DownLoadException(Throwable e){
+        super(e);
+    }
+
     @Override
     public String getMessage() {
         return super.getMessage();
@@ -54,11 +58,6 @@ public class DownLoadException extends RuntimeException {
                 return "Error: Downloading is abort, because the file is not find";
             case 1006:
                 return "Error: Downloaded file's size goes wrong, please Doanload it again";
-            case 1007:
-                return "Error: SocketTimeoutException, please retry to download.";
-            case 1008:
-                return "Error: SocketException, please retry to download";
-
             default:
                 return "Error: Connection failed, the http statuscode is "+ errorCode;
         }

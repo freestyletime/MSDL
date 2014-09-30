@@ -29,9 +29,9 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class DownLoadManagerService {
 
+    static boolean NET_STATE;
     private static DownLoadManagerService service = new DownLoadManagerService();
     private static Context context;
-    private static boolean NET_STATE;
 
     private volatile String ACTION_ANDROID_INFORM_TASK = "action_android_inform_task";
 
@@ -86,7 +86,7 @@ public class DownLoadManagerService {
                         userTask.process = task.process;
                         userTask.path = task.path;
                         userTask.url = task.url;
-                        userTask.errorCode = task.errorCode;
+                        userTask.e = task.e;
 
                         callback.invoke(obj, userTask);
                     }
@@ -221,10 +221,6 @@ public class DownLoadManagerService {
 
     void setThreadSize(int threadSize){
         this.threadSize = threadSize;
-        if(threadPool != null){
-            threadPool = null;
-            threadPool = Executors.newFixedThreadPool(this.threadSize, new DownLoadThreadFactory());
-        }
     }
 
     void setRepeatTime(long repeatTime){
