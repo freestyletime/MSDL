@@ -1,4 +1,4 @@
-File DownloadManager Of Java
+Android File DownloadManager
 ========================================
 ###Multi - Single Download Simple Framework
 #####This is a file download simple framework based on Java and you can use it to download and manage any file.
