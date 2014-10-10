@@ -1,7 +1,7 @@
 Android File DownloadManager
 ========================================
 ###Multi - Single Download Simple Framework
-#####This is a file download simple framework based on Java and you can use it to download and manage any file.
+#####This is a file download simple framework based on android and you can use it to download and manage any file.
 <br/>
 ##### feature:
       1. Support task Automatic queue;
