@@ -5,6 +5,7 @@ File DownloadManager Of Java
 <br/>
 ##### feature:
       1. Support task Automatic queue;
-      2. Support to set Running task size;
-      3. Support pause and resume downloads;
-      4. Use annotation;
+      2. Support to set running task size;
+      3. Support to set return repeat time;
+      4. Support to pause and resume downloads;
+      5. Use annotation to return the result;
