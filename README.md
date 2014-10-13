@@ -9,3 +9,9 @@ Android File DownloadManager
       3. Support to set repeat time;
       4. Support to pause and resume downloads;
       5. Use annotation to return the result;
+##### necessary user-permission in AndroidManifest.xml 
+      <uses-permission android:name="android.permission.INTERNET"/>
+      <uses-permission android:name="android.permission.WAKE_LOCK"/>
+      <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+      <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+      <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
