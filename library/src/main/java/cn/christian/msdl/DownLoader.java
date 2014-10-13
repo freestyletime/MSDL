@@ -62,6 +62,13 @@ public interface DownLoader {
      * */
     String add(String url);
     /**
+     * Add and start a new task to the download queue.
+     *
+     * @param id The task's unique id
+     * @param url A http URL user should be provided
+     * */
+    void add(String id, String url);
+    /**
      * Resume a task in the download queue.
      *
      * @param id The task's unique id
@@ -74,9 +81,16 @@ public interface DownLoader {
      * */
     void pause(String id);
     /**
-     * remove a running or waitting task in the download queue.
+     * Remove a running or waitting task in the download queue.
      *
      * @param id The task's unique id
      * */
     void cancle(String id);
+    /**
+     * Query the managed task by id
+     *
+     * @param id The task's unique id
+     * @return It will return null if the task not exist in queue
+     * */
+    DownLoadTaskStatus query(String id);
 }

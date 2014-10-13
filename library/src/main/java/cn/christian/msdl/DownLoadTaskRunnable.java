@@ -101,12 +101,10 @@ class DownLoadTaskRunnable implements Runnable {
         long length;
 
         try {
-
             length = Long.parseLong(conn.getHeaderField("Content-Length"));
             conn.disconnect();
 
             if(length != file.length()){
-
                 conn = (HttpURLConnection) url.openConnection();
                 conn.setDoOutput(false);
                 conn.setDoInput(true);
@@ -121,12 +119,9 @@ class DownLoadTaskRunnable implements Runnable {
                 conn.setRequestProperty("Accept-Encoding", "musixmatch");
                 conn.setRequestProperty("Content-Type", "application/stream");
                 conn.setRequestProperty("Range", "bytes=" + file.length() + "-");
-//            conn.setRequestProperty("Connection","Keep-Alive");
-//            conn.setRequestProperty("Cache-Control","no-cache");
                 conn.connect();
 
                 int code = conn.getResponseCode();
-
                 task.status = DownLoadTaskStatus.RUNNING;
                 task.length = length;
 
@@ -161,7 +156,7 @@ class DownLoadTaskRunnable implements Runnable {
             InputStream is = conn.getInputStream();
 
             raf.seek(file.length());
-            int buffer = 4096; //4K
+            int buffer = 4096;
             int offset;
             byte[] bytes = new byte[buffer];
 

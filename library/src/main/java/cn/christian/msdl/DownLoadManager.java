@@ -1,6 +1,7 @@
 package cn.christian.msdl;
 
 import android.content.Context;
+import android.text.TextUtils;
 
 import java.lang.reflect.Method;
 
@@ -38,7 +39,7 @@ public class DownLoadManager implements DownLoader{
             throw new DownLoadException("DownLoadManager::register user must send a initialized object.");
         if((method = DownLoadUtils.inject(obj)) == null)
             throw new DownLoadException("DownLoadManager::register the object you inject must have a method like " +
-                    " void fun(String id, DownLoadTaskStatus status, long length, long process, int errorCode).");
+                    " void fun(DownLoadUserTask task)");
 
         service.bind(obj, method);
     }
@@ -86,11 +87,17 @@ public class DownLoadManager implements DownLoader{
 
     @Override
     public String add(String url) {
-        if(url == null) return null;
+        if(TextUtils.isEmpty(url)) return null;
 
         DownLoadTask task = new DownLoadTask(DownLoadUtils.uniqueId(), url, DownLoadUtils.makePath(service.basePath, url));
         service.add(task);
         return task.id;
+    }
+
+    @Override
+    public void add(String id, String url) {
+        if(TextUtils.isEmpty(url)||TextUtils.isEmpty(id)) return;
+        service.add(new DownLoadTask(id, url, DownLoadUtils.makePath(service.basePath, url)));
     }
 
     @Override
@@ -106,5 +113,10 @@ public class DownLoadManager implements DownLoader{
     @Override
     public void cancle(String id) {
         service.cancle(id);
+    }
+
+    @Override
+    public DownLoadTaskStatus query(String id) {
+        return service.query(id);
     }
 }

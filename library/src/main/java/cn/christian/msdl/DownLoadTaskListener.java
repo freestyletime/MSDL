@@ -11,6 +11,7 @@ package cn.christian.msdl;
  * @time 14-9-16 下午1:43
  * @describtion User asynchronous callback
  */
+@Deprecated
 public interface DownLoadTaskListener {
     void waitting(String id);
     void running(DownLoadUserTask task);

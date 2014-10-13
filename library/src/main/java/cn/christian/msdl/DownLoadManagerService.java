@@ -305,4 +305,12 @@ public class DownLoadManagerService {
                 task.isCancle = true;
         }
     }
+
+    DownLoadTaskStatus query(String id){
+        if(allTasks.containsKey(id)){
+            return allTasks.get(id).status;
+        }else{
+            return null;
+        }
+    }
 }
