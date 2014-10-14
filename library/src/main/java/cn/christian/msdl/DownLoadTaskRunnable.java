@@ -6,8 +6,6 @@ import org.apache.http.HttpStatus;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.SocketException;
-import java.net.SocketTimeoutException;
 import java.net.URL;
 
 /**
@@ -161,9 +159,9 @@ class DownLoadTaskRunnable implements Runnable {
             byte[] bytes = new byte[buffer];
 
             do {
-                if(task.isCancle){
+                if(task.isCancel){
                     close(conn, is, raf);
-                    task.status = DownLoadTaskStatus.CANCLE;
+                    task.status = DownLoadTaskStatus.CANCEL;
                     return;
                 }else if(task.isPause){
                     close(conn, is, raf);

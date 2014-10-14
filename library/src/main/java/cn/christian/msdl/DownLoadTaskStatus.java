@@ -12,5 +12,5 @@ package cn.christian.msdl;
  * @describtion A enum whilch can describe one task's status
  */
 public enum DownLoadTaskStatus {
-    WATTING, RUNNING, PAUSE, CANCLE, FINISH, ERROR
+    WATTING, RUNNING, PAUSE, CANCEL, FINISH, ERROR
 }

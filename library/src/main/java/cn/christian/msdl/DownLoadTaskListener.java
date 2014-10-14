@@ -16,6 +16,6 @@ public interface DownLoadTaskListener {
     void waitting(String id);
     void pause(String id);
     void finish(String id, String path);
-    void cancle(String id);
+    void cancel(String id);
     void error(String id, DownLoadException e);
 }

@@ -13,7 +13,7 @@ package cn.christian.msdl;
  */
 class DownLoadTask extends DownLoadUserTask{
 
-    public boolean isCancle = false;
+    public boolean isCancel = false;
     public boolean isPause = false;
 
     DownLoadTask(String id, String url, String path) {

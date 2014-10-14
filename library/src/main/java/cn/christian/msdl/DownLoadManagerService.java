@@ -45,6 +45,7 @@ public class DownLoadManagerService {
     private Queue<DownLoadTask> runningTasks = new LinkedList<DownLoadTask>();
     private Queue<DownLoadTask> pauseTasks = new LinkedList<DownLoadTask>();
     private List<DownLoadTaskListener> listeners = new LinkedList<DownLoadTaskListener>();
+    private Map<String, DownLoadTaskListener> listeners2 = new ConcurrentHashMap<String, DownLoadTaskListener>();
     private Map<String, DownLoadTask> allTasks = new ConcurrentHashMap<String, DownLoadTask>();
     private Map<Object, Method> callbacks = new ConcurrentHashMap<Object, Method>();
 
@@ -65,7 +66,8 @@ public class DownLoadManagerService {
         @Override
         public void onReceive(Context context, Intent intent) {
             lock.lock();
-            Set<Map.Entry<Object, Method>> entrys= DownLoadManagerService.this.callbacks.entrySet();
+            Set<Map.Entry<Object, Method>> callbackEntrys = DownLoadManagerService.this.callbacks.entrySet();
+            Set<Map.Entry<String, DownLoadTaskListener>> listenersEntrys = DownLoadManagerService.this.listeners2.entrySet();
             Collection<DownLoadTask> tasks = DownLoadManagerService.this.allTasks.values();
 
             Object obj;
@@ -74,10 +76,10 @@ public class DownLoadManagerService {
 
             try{
                 for(DownLoadTask task : tasks) {
-                    if(DownLoadManagerService.this.wattingTasks.contains(task) && task.isCancle)
-                        task.status = DownLoadTaskStatus.CANCLE;
+                    if(DownLoadManagerService.this.wattingTasks.contains(task) && task.isCancel)
+                        task.status = DownLoadTaskStatus.CANCEL;
 
-                    for (Map.Entry<Object, Method> entry : entrys) {
+                    for (Map.Entry<Object, Method> entry : callbackEntrys) {
                         obj = entry.getKey();
                         callback = entry.getValue();
                         callback.invoke(obj, task);
@@ -94,8 +96,8 @@ public class DownLoadManagerService {
                             case PAUSE:
                                 listener.pause(task.id);
                                 break;
-                            case CANCLE:
-                                listener.cancle(task.id);
+                            case CANCEL:
+                                listener.cancel(task.id);
                                 break;
                             case FINISH:
                                 listener.finish(task.id, task.path);
@@ -106,8 +108,34 @@ public class DownLoadManagerService {
                         }
                     }
 
+                    for (Map.Entry<String, DownLoadTaskListener> entry : listenersEntrys) {
+                        if(entry.getKey().equals(task.id)){
+                            DownLoadTaskListener listener = entry.getValue();
+                            switch (task.status){
+                                case RUNNING:
+                                    listener.running(task.id, task.length, task.process);
+                                    break;
+                                case WATTING:
+                                    listener.waitting(task.id);
+                                    break;
+                                case PAUSE:
+                                    listener.pause(task.id);
+                                    break;
+                                case CANCEL:
+                                    listener.cancel(task.id);
+                                    break;
+                                case FINISH:
+                                    listener.finish(task.id, task.path);
+                                    break;
+                                case ERROR:
+                                    listener.error(task.id, task.e);
+                                    break;
+                            }
+                        }
+                    }
+
                     switch (task.status){
-                        case CANCLE:
+                        case CANCEL:
                         case FINISH:
                         case ERROR:
                             remove(task.id);
@@ -286,6 +314,11 @@ public class DownLoadManagerService {
             allTasks.put(task.id, task);
     }
 
+    void add(DownLoadTask task, DownLoadTaskListener listener){
+        add(task);
+        listeners2.put(task.id, listener);
+    }
+
     void resume(String id) {
         DownLoadTask task;
 
@@ -315,13 +348,13 @@ public class DownLoadManagerService {
         }
     }
 
-    void cancle(String id){
+    void cancel(String id){
         DownLoadTask task;
 
         if(allTasks.containsKey(id)){
             task = allTasks.get(id);
-            if(task.isCancle = false)
-                task.isCancle = true;
+            if(task.isCancel = false)
+                task.isCancel = true;
         }
     }
 
