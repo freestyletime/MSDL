@@ -97,6 +97,7 @@ public class DownLoadManager implements DownLoader{
     @Override
     public void add(String id, String url) {
         if(TextUtils.isEmpty(url)||TextUtils.isEmpty(id)) return;
+        if(query(id) != null) return;
         service.add(new DownLoadTask(id, url, DownLoadUtils.makePath(service.basePath, url)));
     }
 
@@ -116,7 +117,12 @@ public class DownLoadManager implements DownLoader{
     }
 
     @Override
-    public DownLoadTaskStatus query(String id) {
+    public void setOnDownLoadTaskListener(DownLoadTaskListener listener) {
+        service.setListener(listener);
+    }
+
+    @Override
+    public DownLoadUserTask query(String id) {
         return service.query(id);
     }
 }

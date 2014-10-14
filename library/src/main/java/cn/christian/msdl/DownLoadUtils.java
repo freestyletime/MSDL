@@ -86,7 +86,7 @@ class DownLoadUtils {
         lock.lock();
         try {
             StringBuilder sb = new StringBuilder(UUID.randomUUID().toString());
-            sb.append(Calendar.getInstance().getTimeInMillis());
+            sb.append("-"+Calendar.getInstance().getTimeInMillis());
 
             return sb.toString();
         } finally {

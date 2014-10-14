@@ -44,6 +44,7 @@ public class DownLoadManagerService {
     private Queue<DownLoadTask> wattingTasks = new LinkedList<DownLoadTask>();
     private Queue<DownLoadTask> runningTasks = new LinkedList<DownLoadTask>();
     private Queue<DownLoadTask> pauseTasks = new LinkedList<DownLoadTask>();
+    private List<DownLoadTaskListener> listeners = new LinkedList<DownLoadTaskListener>();
     private Map<String, DownLoadTask> allTasks = new ConcurrentHashMap<String, DownLoadTask>();
     private Map<Object, Method> callbacks = new ConcurrentHashMap<Object, Method>();
 
@@ -79,18 +80,31 @@ public class DownLoadManagerService {
                     for (Map.Entry<Object, Method> entry : entrys) {
                         obj = entry.getKey();
                         callback = entry.getValue();
-
-                        userTask.id = task.id;
-                        userTask.status = task.status;
-                        userTask.length = task.length;
-                        userTask.process = task.process;
-                        userTask.path = task.path;
-                        userTask.url = task.url;
-                        userTask.e = task.e;
-
-                        callback.invoke(obj, userTask);
+                        callback.invoke(obj, task);
                     }
 
+                    for(DownLoadTaskListener listener : listeners){
+                        switch (task.status){
+                            case RUNNING:
+                                listener.running(task.id, task.length, task.process);
+                                break;
+                            case WATTING:
+                                listener.waitting(task.id);
+                                break;
+                            case PAUSE:
+                                listener.pause(task.id);
+                                break;
+                            case CANCLE:
+                                listener.cancle(task.id);
+                                break;
+                            case FINISH:
+                                listener.finish(task.id, task.path);
+                                break;
+                            case ERROR:
+                                listener.error(task.id, task.e);
+                                break;
+                        }
+                    }
 
                     switch (task.status){
                         case CANCLE:
@@ -236,13 +250,18 @@ public class DownLoadManagerService {
     }
 
     void bind(Object obj, Method method){
-        if(obj != null && method != null)
+        if(obj != null && method != null && !callbacks.containsKey(obj))
             callbacks.put(obj, method);
     }
 
     void unBind(Object obj){
         if(callbacks.containsKey(obj))
             callbacks.remove(obj);
+    }
+
+    void setListener(DownLoadTaskListener listener){
+        if(listener != null && !listeners.contains(listener))
+            listeners.add(listener);
     }
 
     void add(DownLoadTask task){
@@ -306,9 +325,9 @@ public class DownLoadManagerService {
         }
     }
 
-    DownLoadTaskStatus query(String id){
+    DownLoadUserTask query(String id){
         if(allTasks.containsKey(id)){
-            return allTasks.get(id).status;
+            return allTasks.get(id);
         }else{
             return null;
         }

@@ -87,10 +87,16 @@ public interface DownLoader {
      * */
     void cancle(String id);
     /**
+     * Set a callback to listen the tasks status change.
+     *
+     * @param listener The listener of user set
+     * */
+    void setOnDownLoadTaskListener(DownLoadTaskListener listener);
+    /**
      * Query the managed task by id
      *
      * @param id The task's unique id
      * @return It will return null if the task not exist in queue
      * */
-    DownLoadTaskStatus query(String id);
+    DownLoadUserTask query(String id);
 }
