@@ -1,10 +1,8 @@
 package cn.christian.msdl.test;
 
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.os.Environment;
+
+import java.io.File;
 
 /**
  * Created in IntelliJ IDEA.
@@ -18,41 +16,19 @@ import android.widget.TextView;
  * @describtion
  */
 public class MSDLTestItem {
-
-    String id;
+    String url;
     String name;
-    long length = 0L;
-    long process = 0L;
+    long length;
+    long process = 0;
 
-    View root;
-    TextView size;
-    ProgressBar bar;
-
-    public MSDLTestItem(String id, String name) {
-        this.id = id;
+    public MSDLTestItem(String url, String name, long length) {
+        this.url = url;
         this.name = name;
-    }
+        this.length = length;
 
-
-    public View getView(Context context){
-        if(root == null){
-            root = LayoutInflater.from(context).inflate(R.layout.item, null);
-            TextView name = (TextView) root.findViewById(R.id.tv_name);
-            size = (TextView) root.findViewById(R.id.tv_process);
-            bar = (ProgressBar) root.findViewById(R.id.pb);
-
-            name.setText(this.name);
-            bar.setProgress(0);
-            bar.setMax(100);
-
-            bar.setTag(bar);
-        }else {
-            size.setText(process + " / " + length);
-            if(length != 0L)
-                bar.setProgress((int)((process*100)/length));
+        File f = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), url.substring(url.lastIndexOf("/")));
+        if(f.exists()){
+            process = f.length();
         }
-
-        return root;
     }
-
 }
