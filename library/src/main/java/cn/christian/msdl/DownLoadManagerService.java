@@ -33,6 +33,7 @@ public class DownLoadManagerService {
     private static DownLoadManagerService service = new DownLoadManagerService();
     private static Context context;
 
+    private Object lock = new Object();
     private volatile String ACTION_ANDROID_INFORM_TASK = "action_android_inform_task";
 
     //min API level is 8 at least.
@@ -51,7 +52,7 @@ public class DownLoadManagerService {
 
     private Intent intent = new Intent(ACTION_ANDROID_INFORM_TASK);
     private PowerManager.WakeLock wakeLock;
-    private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(new DownLoadThreadFactory());
+    private ScheduledExecutorService scheduler;
     private class DownLoadScheduledTask implements Runnable{
 
         @Override
@@ -72,7 +73,6 @@ public class DownLoadManagerService {
 
             Object obj;
             Method callback;
-            DownLoadUserTask userTask = new DownLoadUserTask();
 
             try{
                 for(DownLoadTask task : tasks) {
@@ -167,22 +167,29 @@ public class DownLoadManagerService {
     }
 
     private void startWork(){
-        if(threadPool == null)
-            threadPool = Executors.newFixedThreadPool(this.threadSize, new DownLoadThreadFactory());
+        synchronized (lock) {
+            if (threadPool == null)
+                threadPool = Executors.newFixedThreadPool(this.threadSize, new DownLoadThreadFactory());
 
-        networkJudge();
-        context.registerReceiver(receiver1, new IntentFilter(ACTION_ANDROID_INFORM_TASK));
-        context.registerReceiver(receiver2, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        scheduler.scheduleWithFixedDelay(new DownLoadScheduledTask(), 0, repeatTime, TimeUnit.MILLISECONDS);
-        acquireWakeLock(context, wakeLock);
+            networkJudge();
+            context.registerReceiver(receiver1, new IntentFilter(ACTION_ANDROID_INFORM_TASK));
+            context.registerReceiver(receiver2, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
+            scheduler = Executors.newSingleThreadScheduledExecutor(new DownLoadThreadFactory());
+            scheduler.scheduleWithFixedDelay(new DownLoadScheduledTask(), 0, repeatTime, TimeUnit.MILLISECONDS);
+            acquireWakeLock(context, wakeLock);
+        }
     }
 
     private void stopWork(){
-        if(!scheduler.isShutdown()) {
-            scheduler.shutdown();
-            context.unregisterReceiver(receiver1);
-            context.unregisterReceiver(receiver2);
-            releaseWakeLock(wakeLock);
+        synchronized (lock) {
+            if (!scheduler.isShutdown()) {
+                scheduler.shutdown();
+                context.unregisterReceiver(receiver1);
+                context.unregisterReceiver(receiver2);
+                releaseWakeLock(wakeLock);
+                scheduler = null;
+            }
         }
     }
 
@@ -353,7 +360,7 @@ public class DownLoadManagerService {
 
         if(allTasks.containsKey(id)){
             task = allTasks.get(id);
-            if(task.isCancel = false)
+            if(!task.isCancel)
                 task.isCancel = true;
         }
     }
