@@ -4,9 +4,6 @@ import android.app.Application;
 import cn.christian.msdl.DownLoadManager;
 import cn.christian.msdl.DownLoader;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * Created in IntelliJ IDEA.
  * MSDL
@@ -21,7 +18,6 @@ import java.util.List;
 public class MSDLTestApplication extends Application {
 
     public static DownLoader downLoader;
-    public static List<MSDLTestItem> cache = new ArrayList<MSDLTestItem>();
 
     @Override
     public void onCreate() {

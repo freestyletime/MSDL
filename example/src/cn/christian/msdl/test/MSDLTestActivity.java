@@ -2,12 +2,17 @@ package cn.christian.msdl.test;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
+import android.view.View;
 import android.widget.Button;
-import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 import cn.christian.msdl.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
 
 /**
  * Created in IntelliJ IDEA.
@@ -20,16 +25,31 @@ import java.util.List;
  * @time 14-9-21 上午12:06
  * @describtion Test Activity
  */
-public class MSDLTestActivity extends Activity{
+public class MSDLTestActivity extends Activity implements View.OnClickListener{
 
     MSDLTestApplication application;
     DownLoader downLoader;
-    ListView lv;
+
+    TextView name;
+    TextView process;
+    ProgressBar bar;
     Button bt;
 
-    List<MSDLTestItem> items = new ArrayList<MSDLTestItem>();
-    MSDLTestAdapter adapter;
+    DownLoadTaskStatus status = null;
+    String task_id = "0";
+    String basePath = Environment.getExternalStorageDirectory().getAbsolutePath();
+    long progress = 0L;
+    long length = 30490582L;
+    String url = "http://gdown.baidu.com/data/wisegame/d52c3b17d08b2a53/baiduditu_568.apk";
+    File apk = new File(basePath, url.substring(url.lastIndexOf("/")));
 
+
+    Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,58 +57,144 @@ public class MSDLTestActivity extends Activity{
         setContentView(R.layout.main);
 
         application = (MSDLTestApplication) getApplication();
-        downLoader = application.downLoader;
+        downLoader = application.downLoader.setBasePath(basePath);
+        downLoader.register(this);
 
-        lv = (ListView) findViewById(R.id.lv);
+        name = (TextView) findViewById(R.id.tv_name);
+        process = (TextView) findViewById(R.id.tv_process);
+        bar = (ProgressBar) findViewById(R.id.pb);
+        bt = (Button) findViewById(R.id.btn);
+        bt.setOnClickListener(this);
 
-        if(application.cache.size() != 0){
-            if(adapter == null){
-                items.addAll(application.cache);
-
-                adapter = new MSDLTestAdapter(this, items, downLoader);
-                lv.setAdapter(adapter);
+        findViewById(R.id.btn2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                downLoader.cancel(task_id);
             }
-        }else{
-            if(adapter == null){
-                int size = 0;
-                String url = null;
-                long length = 0L;
-                while(size < 5){
-                    switch (size){
-                        case 0:
-                            url = "http://gdown.baidu.com/data/wisegame/b8c96d6e7e845bc4/baidu_16785677.apk";
-                            length = 12556783L;
-                            break;
-                        case 1:
-                            url = "http://gdown.baidu.com/data/wisegame/09d27de64ab6e57c/baidushipin_1070101366.apk";
-                            length = 18065278L;
-                            break;
-                        case 2:
-                            url = "http://gdown.baidu.com/data/wisegame/c761d2968b478011/baiduliulanqi_46.apk";
-                            length = 14505047L;
-                            break;
-                        case 3:
-                            url = "http://gdown.baidu.com/data/wisegame/d52c3b17d08b2a53/baiduditu_568.apk";
-                            length = 30490582L;
-                            break;
-                        case 4:
-                            url = "http://gdown.baidu.com/data/wisegame/bebf38e4ef8831f3/baidutieba_100860672.apk";
-                            length = 19137736L;
-                            break;
-                    }
-                    items.add(new MSDLTestItem(url, "Christian Test Link#" + size, length));
-                    ++size;
-                }
-                adapter = new MSDLTestAdapter(this, items, downLoader);
-                lv.setAdapter(adapter);
+        });
+
+        name.setText("Task#"+task_id);
+
+        if(apk.exists()){
+            progress = apk.length();
+
+            if(progress == length){
+                bt.setText("finish:" + apk.getAbsolutePath());
+                bt.setEnabled(false);
+                status = DownLoadTaskStatus.FINISH;
             }
+        }
+
+        process.setText(progress + "/" + length);
+        bar.setProgress(((int)(progress*100/length)));
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if(status == null){
+            DownLoadUserTask task = null;
+            status = (task = downLoader.query(task_id)) == null ? null : task.status;
+            changeBtn(status);
         }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        application.cache.clear();
-        application.cache.addAll(items);
+        downLoader.unRegister(this);
+    }
+
+    @DownLoadCallback
+    public void fun(DownLoadUserTask task){
+        if(!task.id.equals(task_id))return;
+
+        status = task.status;
+        progress = task.process;
+        changeBtn(task.status);
+
+        switch (task.status){
+            case RUNNING:
+                if(task.length != length) {
+                    Toast.makeText(this, "length error!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+            case PAUSE:
+            case CANCEL:
+            case FINISH:
+                process.setText(progress + "/" + length);
+                bar.setProgress(((int)(progress*100/length)));
+                break;
+            case ERROR:
+                process.setText(progress + "/" + length);
+                bar.setProgress(((int)(progress*100/length)));
+                Toast.makeText(this, task.e.getMessage(), Toast.LENGTH_LONG).show();
+                break;
+            case WATTING:
+                break;
+        }
+    }
+
+    @Override
+    public void onClick(View view) {
+        if(status == null){
+            downLoader.add(task_id, url);
+        }else
+            switch (status){
+                case RUNNING:
+                    downLoader.pause(task_id);
+                    break;
+                case WATTING:
+                    downLoader.cancel(task_id);
+                    break;
+                case PAUSE:
+                    downLoader.resume(task_id);
+                    break;
+                case CANCEL:
+                    downLoader.add(task_id, url);
+                    break;
+                case FINISH:
+                    downLoader.cancel(task_id);
+                    break;
+                case ERROR:
+                    downLoader.add(task_id, url);
+                    break;
+            }
+    }
+
+    private void changeBtn(DownLoadTaskStatus status){
+           if(status != null)
+               switch (status){
+                   case RUNNING:
+                       bt.setText("pause");
+                       if(!bt.isEnabled()) bt.setEnabled(true);
+
+                       break;
+                   case WATTING:
+                       bt.setText("cancel");
+                       if(bt.isEnabled()) bt.setEnabled(true);
+
+                       break;
+                   case PAUSE:
+                       bt.setText("continue");
+                       if(!bt.isEnabled()) bt.setEnabled(true);
+
+                       break;
+                   case CANCEL:
+                       bt.setText("start");
+                       if(bt.isEnabled()) bt.setEnabled(true);
+
+                       break;
+                   case FINISH:
+                       bt.setText("finish:" + apk.getAbsolutePath());
+                       if(bt.isEnabled()) bt.setEnabled(false);
+
+                       break;
+                   case ERROR:
+                       bt.setText("start");
+                       if(bt.isEnabled()) bt.setEnabled(true);
+                       break;
+               }
     }
 }
