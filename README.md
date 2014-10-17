@@ -16,3 +16,7 @@ Android File DownloadManager
       <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
       <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
       <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
+
+<br/>
+###Copyright and License
+#####Code released under the BSD license.
