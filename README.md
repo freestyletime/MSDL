@@ -2,7 +2,7 @@ Android File DownloadManager
 ========================================
 ###Multi - Single Download Simple Framework
 #####This is a file download simple framework based on android and you can use it to download and manage any file.
-<br/>
+***
 ##### feature:
       1. Support task Automatic queue;
       2. Support to set running task size;
@@ -17,6 +17,9 @@ Android File DownloadManager
       <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
       <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
 
-<br/>
+***
+###example
+![](https://github.com/freestyletime/MSDL/blob/master/example/msdl.png)
+***
 ###Copyright and License
 #####Code released under the BSD license.
