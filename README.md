@@ -9,7 +9,8 @@ Android File DownloadManager
       3. Support to set repeat time;
       4. Support to pause and resume downloads;
       5. Support to cancel the task by unique id;
-      6. Support two style, User can select annotation or callback to return the result;
+      6. Support two data return style, User can select annotation or callback to return the result;
+      7. Have no dependency;
 ##### necessary user-permission in AndroidManifest.xml 
       <uses-permission android:name="android.permission.INTERNET"/>
       <uses-permission android:name="android.permission.WAKE_LOCK"/>
