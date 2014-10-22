@@ -22,5 +22,17 @@ Android File DownloadManager
 ###example
 ![](https://github.com/freestyletime/MSDL/blob/master/example/msdl.png)
 ***
+###ProGuard configuration
+#####ProGuard obfuscates method names. However, the fun methods can renamed because they are accessed using reflection by annotation of `DownLoadCallback`. Use the following snip in your ProGuard configuration file (proguard.cfg):
+      -keepclassmembers class ** {
+            public void **(cn.christian.msdl.DownLoadUserTask);
+      }
+      -keepclassmembers class ** {
+            void **(cn.christian.msdl.DownLoadUserTask);
+      }
+      -keepclassmembers class * {
+            @cn.christian.msdl.DownLoadCallback *;
+      }
+***
 ###Copyright and License
 #####Code released under the BSD license.
