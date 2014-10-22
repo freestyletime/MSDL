@@ -76,7 +76,7 @@ public class MSDLTestActivity extends Activity implements View.OnClickListener{
 ![](https://github.com/freestyletime/MSDL/blob/master/example/msdl.png)
 ***
 ###ProGuard configuration
-#####ProGuard obfuscates method names. However, the fun methods can renamed because they are accessed using reflection by annotation of `DownLoadCallback`. Use the following snip in your ProGuard configuration file (proguard.cfg):
+#####ProGuard obfuscates method names. And the fun methods can renamed because they are accessed using reflection by annotation of `DownLoadCallback`. Use the following snip in your ProGuard configuration file (proguard.cfg):
       -keepclassmembers class ** {
             public void **(cn.christian.msdl.DownLoadUserTask);
       }
