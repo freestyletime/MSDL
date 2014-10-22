@@ -11,6 +11,9 @@ Android File DownloadManager
       5. Support to cancel the task by unique id;
       6. Support two data return style, User can select annotation or callback to return the result;
       7. Have no dependency;
+      8. Light weight;
+      
+      In a word, you can manage your downloads by the unique id.
 ##### necessary user-permission in AndroidManifest.xml 
       <uses-permission android:name="android.permission.INTERNET"/>
       <uses-permission android:name="android.permission.WAKE_LOCK"/>
