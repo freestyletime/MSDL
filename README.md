@@ -52,7 +52,7 @@ public class MSDLTestActivity extends Activity implements View.OnClickListener{
         //And you can also use callback such as 
         //DownLoader.setOnDownLoadTaskListener(DownLoadTaskListener) 
         //Or DownLoader.add(String, String, DownLoadTaskListener);
-        //To return the value , the both are asynchronous.
+        //To return the values, the both are asynchronous.
         downLoader.register(this);
       }
       
