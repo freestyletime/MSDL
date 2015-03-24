@@ -14,12 +14,12 @@ package cn.christian.msdl;
 public class DownLoadUserTask {
 
     public String id = null;
-    public DownLoadTaskStatus status = DownLoadTaskStatus.WATTING;
     public long length = 0L;
     public long process = 0L;
-    public DownLoadException e = null;
     public String url = null;
     public String path = null;
+    public DownLoadException e = null;
+    public DownLoadTaskStatus status = DownLoadTaskStatus.WATTING;
 
     public DownLoadUserTask() {
     }

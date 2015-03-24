@@ -22,7 +22,7 @@ class DownLoadThreadFactory implements ThreadFactory {
     @Override
     public Thread newThread(Runnable r) {
         Thread t = new Thread(r, "#MSDL Christian_Chen Thread_#" + index.getAndIncrement());
-        t.setPriority(android.os.Process.THREAD_PRIORITY_BACKGROUND);
+        t.setPriority(Thread.MAX_PRIORITY);
         return t;
     }
 }

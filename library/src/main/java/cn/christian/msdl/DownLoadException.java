@@ -52,12 +52,12 @@ public class DownLoadException extends RuntimeException {
                 return e.getMessage();
 //            case 1000:
 //                return "Error: the object you injected must have a method like void fun(String id, DownLoadTaskStatus status, long length, long process, int errorCode)";
-            case 1001:
-                return "Error: SDcard is not unmount";
+//            case 1001:
+//                return "Error: File path is invalid";
             case 1002:
                 return "Error: URL is invalid";
             case 1003:
-                return "Error: File can not be created, please check the base path you send";
+                return "Error: File can not be created";
 //            case 1004:
 //                return "Error: IOException, check out your current network environmnet";
             case 1005:

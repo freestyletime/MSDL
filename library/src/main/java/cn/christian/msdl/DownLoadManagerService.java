@@ -1,13 +1,5 @@
 package cn.christian.msdl;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.*;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -30,13 +22,10 @@ import java.util.concurrent.locks.ReentrantLock;
 public class DownLoadManagerService {
 
     private static DownLoadManagerService service = new DownLoadManagerService();
-    private static Context context;
 
-    private Object lock = new Object();
-    private volatile String ACTION_ANDROID_INFORM_TASK = "action_android_inform_task";
+    private Lock lock = new ReentrantLock();
 
-    //min API level is 8 at least.
-    private final String defaultBasePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+    private final String defaultBasePath = "/sdcard/download/";
     private final int defaultThreadSize = 1;
     private final long defaultRepeatTime = 1000;
 
@@ -49,23 +38,19 @@ public class DownLoadManagerService {
     private Map<String, DownLoadTask> allTasks = new ConcurrentHashMap<String, DownLoadTask>();
     private Map<Object, Method> callbacks = new ConcurrentHashMap<Object, Method>();
 
-    private Intent intent = new Intent(ACTION_ANDROID_INFORM_TASK);
-    private PowerManager.WakeLock wakeLock;
     private ScheduledExecutorService scheduler;
     private class DownLoadScheduledTask implements Runnable{
 
         @Override
         public void run() {
-            context.sendBroadcast(intent);
+            call();
         }
     }
-    private final BroadcastReceiver receiver1 = new BroadcastReceiver() {
 
-        private Lock lock = new ReentrantLock();
+    private void call() {
+        lock.lock();
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            lock.lock();
+        try{
             Set<Map.Entry<Object, Method>> callbackEntrys = DownLoadManagerService.this.callbacks.entrySet();
             Set<Map.Entry<String, DownLoadTaskListener>> listenersEntrys = DownLoadManagerService.this.listeners2.entrySet();
             Collection<DownLoadTask> tasks = DownLoadManagerService.this.allTasks.values();
@@ -73,18 +58,42 @@ public class DownLoadManagerService {
             Object obj;
             Method callback;
 
-            try{
-                for(DownLoadTask task : tasks) {
-                    if(DownLoadManagerService.this.wattingTasks.contains(task) && task.isCancel)
-                        task.status = DownLoadTaskStatus.CANCEL;
+            for(DownLoadTask task : tasks) {
+                if(DownLoadManagerService.this.wattingTasks.contains(task) && task.isCancel)
+                    task.status = DownLoadTaskStatus.CANCEL;
 
-                    for (Map.Entry<Object, Method> entry : callbackEntrys) {
-                        obj = entry.getKey();
-                        callback = entry.getValue();
-                        callback.invoke(obj, task);
+                for (Map.Entry<Object, Method> entry : callbackEntrys) {
+                    obj = entry.getKey();
+                    callback = entry.getValue();
+                    callback.invoke(obj, task);
+                }
+
+                for(DownLoadTaskListener listener : listeners){
+                    switch (task.status){
+                        case RUNNING:
+                            listener.running(task.id, task.length, task.process);
+                            break;
+                        case WATTING:
+                            listener.waitting(task.id);
+                            break;
+                        case PAUSE:
+                            listener.pause(task.id);
+                            break;
+                        case CANCEL:
+                            listener.cancel(task.id);
+                            break;
+                        case FINISH:
+                            listener.finish(task.id, task.path);
+                            break;
+                        case ERROR:
+                            listener.error(task.id, task.e);
+                            break;
                     }
+                }
 
-                    for(DownLoadTaskListener listener : listeners){
+                for (Map.Entry<String, DownLoadTaskListener> entry : listenersEntrys) {
+                    if(entry.getKey().equals(task.id)){
+                        DownLoadTaskListener listener = entry.getValue();
                         switch (task.status){
                             case RUNNING:
                                 listener.running(task.id, task.length, task.process);
@@ -106,50 +115,23 @@ public class DownLoadManagerService {
                                 break;
                         }
                     }
-
-                    for (Map.Entry<String, DownLoadTaskListener> entry : listenersEntrys) {
-                        if(entry.getKey().equals(task.id)){
-                            DownLoadTaskListener listener = entry.getValue();
-                            switch (task.status){
-                                case RUNNING:
-                                    listener.running(task.id, task.length, task.process);
-                                    break;
-                                case WATTING:
-                                    listener.waitting(task.id);
-                                    break;
-                                case PAUSE:
-                                    listener.pause(task.id);
-                                    break;
-                                case CANCEL:
-                                    listener.cancel(task.id);
-                                    break;
-                                case FINISH:
-                                    listener.finish(task.id, task.path);
-                                    break;
-                                case ERROR:
-                                    listener.error(task.id, task.e);
-                                    break;
-                            }
-                        }
-                    }
-
-                    switch (task.status){
-                        case CANCEL:
-                        case FINISH:
-                        case ERROR:
-                            remove(task.id);
-                    }
                 }
-            }catch (InvocationTargetException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }finally {
-                lock.unlock();
-            }
-        }
-    };
 
+                switch (task.status){
+                    case CANCEL:
+                    case FINISH:
+                    case ERROR:
+                        remove(task.id);
+                }
+            }
+        }catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }finally {
+            lock.unlock();
+        }
+    }
 
     private DownLoadManagerService(){
         // ---  default setting  ---
@@ -160,24 +142,27 @@ public class DownLoadManagerService {
     }
 
     private void startWork(){
-        synchronized (lock) {
+        lock.lock();
+        try{
             if (threadPool == null)
                 threadPool = Executors.newFixedThreadPool(this.threadSize, new DownLoadThreadFactory());
 
-            context.registerReceiver(receiver1, new IntentFilter(ACTION_ANDROID_INFORM_TASK));
-
             scheduler = Executors.newSingleThreadScheduledExecutor(new DownLoadThreadFactory());
             scheduler.scheduleWithFixedDelay(new DownLoadScheduledTask(), 0, repeatTime, TimeUnit.MILLISECONDS);
+        }finally {
+            lock.unlock();
         }
     }
 
     private void stopWork(){
-        synchronized (lock) {
+        lock.lock();
+        try{
             if (!scheduler.isShutdown()) {
                 scheduler.shutdown();
-                context.unregisterReceiver(receiver1);
                 scheduler = null;
             }
+        }finally {
+        lock.unlock();
         }
     }
 
@@ -213,8 +198,7 @@ public class DownLoadManagerService {
 
     //-----------------------------------------
 
-    static DownLoadManagerService getInstance(Context context){
-        DownLoadManagerService.context = context;
+    static DownLoadManagerService getInstance(){
         return service;
     }
 

@@ -1,8 +1,5 @@
 package cn.christian.msdl;
 
-import android.content.Context;
-import android.text.TextUtils;
-
 import java.lang.reflect.Method;
 
 /**
@@ -21,14 +18,14 @@ public class DownLoadManager implements DownLoader{
     DownLoadManagerService service;
 
     //-----------------------------------------
-    private DownLoadManagerService getService(Context context){
-        return  service == null ? service = DownLoadManagerService.getInstance(context) : service;
+    private DownLoadManagerService getService(){
+        return  service == null ? service = DownLoadManagerService.getInstance() : service;
     }
     //-----------------------------------------
 
-    public DownLoadManager(Context context){
+    public DownLoadManager(){
         super();
-        getService(context);
+        getService();
     }
 
     @Override
@@ -87,7 +84,7 @@ public class DownLoadManager implements DownLoader{
 
     @Override
     public String add(String url) {
-        if(TextUtils.isEmpty(url)) return null;
+        if(null == url || "".equals(url)) return null;
 
         DownLoadTask task = new DownLoadTask(DownLoadUtils.uniqueId(), url, DownLoadUtils.makePath(service.basePath, url));
         service.add(task);
@@ -96,14 +93,14 @@ public class DownLoadManager implements DownLoader{
 
     @Override
     public void add(String id, String url) {
-        if(TextUtils.isEmpty(url)||TextUtils.isEmpty(id)) return;
+        if(null == id || null == url || "".equals(id) || "".equals(url)) return;
         if(query(id) != null) return;
         service.add(new DownLoadTask(id, url, DownLoadUtils.makePath(service.basePath, url)));
     }
 
     @Override
     public void add(String id, String url, DownLoadTaskListener listener) {
-        if(TextUtils.isEmpty(url)||TextUtils.isEmpty(id)) return;
+        if(null == id || null == url || "".equals(id) || "".equals(url)) return;
         if(query(id) != null) return;
         service.add(new DownLoadTask(id, url, DownLoadUtils.makePath(service.basePath, url)), listener);
     }

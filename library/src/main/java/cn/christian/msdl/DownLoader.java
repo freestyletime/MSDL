@@ -25,7 +25,7 @@ public interface DownLoader {
      * */
     void unRegister(Object obj);
     /**
-     * Set the time that will call the callback in the Mainthread.
+     * Set the time that will call the callback to the Mainthread you register.
      *
      * @param interval Repeat time (millisecond)
      * */

@@ -1,8 +1,6 @@
 package cn.christian.msdl;
 
-import android.os.Environment;
 import android.webkit.URLUtil;
-import org.apache.http.HttpStatus;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -45,6 +43,9 @@ class DownLoadTaskRunnable implements Runnable {
         if(check()){
             try {
                 download(setting());
+            } catch(FileNotFoundException e) {
+                task.status = DownLoadTaskStatus.ERROR;
+                task.e = new DownLoadException(1003);
             }catch (IOException e) {
                 e.printStackTrace();
                 task.status = DownLoadTaskStatus.ERROR;
@@ -56,13 +57,6 @@ class DownLoadTaskRunnable implements Runnable {
     //-----------------------------------------
 
     private boolean check(){
-        if(task.path.contains("sdcard")){
-            if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)){
-                task.status = DownLoadTaskStatus.ERROR;
-                task.e = new DownLoadException(1001);
-                return false;
-            }
-        }
 
         if(task.url == null || !URLUtil.isValidUrl(task.url)){
             task.status = DownLoadTaskStatus.ERROR;
@@ -89,11 +83,11 @@ class DownLoadTaskRunnable implements Runnable {
 
     private HttpURLConnection setting() throws IOException {
         URL url = new URL(task.url);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        long length;
+        HttpURLConnection conn = null;
 
         try {
-            length = Long.parseLong(conn.getHeaderField("Content-Length"));
+            conn = (HttpURLConnection) url.openConnection();
+            long length = conn.getContentLength();
             conn.disconnect();
 
             if(length != file.length()){
@@ -117,10 +111,10 @@ class DownLoadTaskRunnable implements Runnable {
                 task.status = DownLoadTaskStatus.RUNNING;
                 task.length = length;
 
-                if (code == HttpStatus.SC_OK) {
+                if (code == 200) {
                     file.deleteOnExit();
                     file.createNewFile();
-                } else if (code == HttpStatus.SC_PARTIAL_CONTENT) {
+                } else if (code == 206) {
                     task.process = file.length();
                 } else {
                     task.status = DownLoadTaskStatus.ERROR;
