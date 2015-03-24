@@ -22,6 +22,6 @@ public class MSDLTestApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        downLoader = new DownLoadManager(this);
+        downLoader = new DownLoadManager();
     }
 }

@@ -47,7 +47,10 @@ public class MSDLTestActivity extends Activity implements View.OnClickListener{
     Handler handler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
-            super.handleMessage(msg);
+            if(msg.obj instanceof DownLoadUserTask){
+                DownLoadUserTask task = (DownLoadUserTask) msg.obj;
+                dealTaskStatus(task);
+            }
         }
     };
 
@@ -108,32 +111,7 @@ public class MSDLTestActivity extends Activity implements View.OnClickListener{
 
     @DownLoadCallback
     public void fun(DownLoadUserTask task){
-        if(!task.id.equals(task_id))return;
-
-        status = task.status;
-        progress = task.process;
-        changeBtn(task.status);
-
-        switch (task.status){
-            case RUNNING:
-                if(task.length != length) {
-                    Toast.makeText(this, "length error!", Toast.LENGTH_LONG).show();
-                    return;
-                }
-            case PAUSE:
-            case CANCEL:
-            case FINISH:
-                process.setText(progress + "/" + length);
-                bar.setProgress(((int)(progress*100/length)));
-                break;
-            case ERROR:
-                process.setText(progress + "/" + length);
-                bar.setProgress(((int)(progress*100/length)));
-                Toast.makeText(this, task.e.getMessage(), Toast.LENGTH_LONG).show();
-                break;
-            case WATTING:
-                break;
-        }
+        Message.obtain(handler, 0, task).sendToTarget();
     }
 
     @Override
@@ -161,6 +139,35 @@ public class MSDLTestActivity extends Activity implements View.OnClickListener{
                     downLoader.add(task_id, url);
                     break;
             }
+    }
+
+    private void dealTaskStatus(DownLoadUserTask task){
+        if(!task.id.equals(task_id))return;
+
+        status = task.status;
+        progress = task.process;
+        changeBtn(task.status);
+
+        switch (task.status){
+            case RUNNING:
+                if(task.length != length) {
+                    Toast.makeText(this, "length error!", Toast.LENGTH_LONG).show();
+                    return;
+                }
+            case PAUSE:
+            case CANCEL:
+            case FINISH:
+                process.setText(progress + "/" + length);
+                bar.setProgress(((int)(progress*100/length)));
+                break;
+            case ERROR:
+                process.setText(progress + "/" + length);
+                bar.setProgress(((int)(progress*100/length)));
+                Toast.makeText(this, task.e.getMessage(), Toast.LENGTH_LONG).show();
+                break;
+            case WATTING:
+                break;
+        }
     }
 
     private void changeBtn(DownLoadTaskStatus status){
