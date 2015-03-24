@@ -1,7 +1,7 @@
-Android File DownloadManager
+Java File DownloadManager
 ========================================
 ###Multi - Single Download Simple Framework
-#####This is a file download simple framework based on android and you can use it to download and manage any file.
+#####This is a file download simple framework based on Java and you can use it to download and manage any file.
 ***
 ##### feature:
       1. Support task Automatic queue;
@@ -10,18 +10,15 @@ Android File DownloadManager
       4. Support to pause and resume downloads;
       5. Support to cancel the task by unique id;
       6. Support two data return style, User can select annotation or callback to return the result;
-      7. Have no dependency;
+      7. Based on Java(HttpURLConnection) and no other dependency;
       8. Light weight;
       
       In a word, you can manage your downloads by the unique id.
 ##### necessary user-permission in AndroidManifest.xml 
       <uses-permission android:name="android.permission.INTERNET"/>
-      <uses-permission android:name="android.permission.WAKE_LOCK"/>
-      <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
       <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-      <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS"/>
 ***
-###example
+###Example
 ```java
 //application
 public class MSDLTestApplication extends Application {
@@ -32,6 +29,7 @@ public class MSDLTestApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        // Init the interface in application
         downLoader = new DownLoadManager(this);
     }
 }
@@ -50,6 +48,8 @@ public class MSDLTestActivity extends Activity implements View.OnClickListener{
         setContentView(R.layout.main);
 
         application = (MSDLTestApplication) getApplication();
+
+        //Set the downloads file path
         downLoader = application.downLoader.setBasePath(basePath);
         //If you register the object, you can use annotation to return the downloads values
         //And you can also use callback such as 
