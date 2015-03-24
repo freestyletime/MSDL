@@ -84,12 +84,6 @@ class DownLoadTaskRunnable implements Runnable {
             }
         }
 
-        if(!DownLoadManagerService.NET_STATE){
-            task.status = DownLoadTaskStatus.ERROR;
-            task.e = new DownLoadException(1004);
-            return false;
-        }
-
         return true;
     }
 
@@ -138,7 +132,7 @@ class DownLoadTaskRunnable implements Runnable {
                 task.process = file.length();
             }
 
-        }catch (Exception e){
+        }catch (IOException e){
             conn.disconnect();
             e.printStackTrace();
             task.status = DownLoadTaskStatus.ERROR;
@@ -166,11 +160,6 @@ class DownLoadTaskRunnable implements Runnable {
                 }else if(task.isPause){
                     close(conn, is, raf);
                     task.status = DownLoadTaskStatus.PAUSE;
-                    return;
-                }else if(!DownLoadManagerService.NET_STATE){
-                    close(conn, is, raf);
-                    task.status = DownLoadTaskStatus.ERROR;
-                    task.e = new DownLoadException(1004);
                     return;
                 }else{
                     if ((offset = is.read(bytes, 0, buffer)) > 0) {

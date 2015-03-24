@@ -13,8 +13,11 @@ package cn.christian.msdl;
  */
 public class DownLoadException extends RuntimeException {
 
-    public DownLoadException(int errorCode){
-        super(code2message(errorCode));
+    private int eCode;
+
+    public DownLoadException(int eCode){
+        super(code2message(eCode));
+        this.eCode = eCode;
     }
 
     public DownLoadException(String msg){
@@ -25,9 +28,8 @@ public class DownLoadException extends RuntimeException {
         super(e);
     }
 
-    @Override
-    public String getMessage() {
-        return super.getMessage();
+    public int getEcode(){
+        return eCode;
     }
 
     @Override
@@ -38,12 +40,12 @@ public class DownLoadException extends RuntimeException {
     /**
      * This method can switch the errorCode to exception message.
      *
-     * @param errorCode The code the user received when the download is doing.
+     * @param eCode The code the user received when the download is doing.
      * @return The result of the exception
      *
      * */
-    public static String code2message(int errorCode){
-        switch (errorCode){
+    public static String code2message(int eCode){
+        switch (eCode){
 //            case 1000:
 //                return "Error: the object you injected must have a method like void fun(String id, DownLoadTaskStatus status, long length, long process, int errorCode)";
             case 1001:
@@ -59,7 +61,7 @@ public class DownLoadException extends RuntimeException {
             case 1006:
                 return "Error: Downloaded file's size goes wrong, please Doanload it again";
             default:
-                return "Error: Connection failed, the http statuscode is "+ errorCode;
+                return "Error: Connection failed, the http statuscode is "+ eCode;
         }
     }
 }

@@ -29,7 +29,6 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class DownLoadManagerService {
 
-    static boolean NET_STATE;
     private static DownLoadManagerService service = new DownLoadManagerService();
     private static Context context;
 
@@ -150,13 +149,7 @@ public class DownLoadManagerService {
             }
         }
     };
-    private final BroadcastReceiver receiver2 = new BroadcastReceiver() {
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            networkJudge();
-        }
-    };
 
     private DownLoadManagerService(){
         // ---  default setting  ---
@@ -171,13 +164,10 @@ public class DownLoadManagerService {
             if (threadPool == null)
                 threadPool = Executors.newFixedThreadPool(this.threadSize, new DownLoadThreadFactory());
 
-            networkJudge();
             context.registerReceiver(receiver1, new IntentFilter(ACTION_ANDROID_INFORM_TASK));
-            context.registerReceiver(receiver2, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
             scheduler = Executors.newSingleThreadScheduledExecutor(new DownLoadThreadFactory());
             scheduler.scheduleWithFixedDelay(new DownLoadScheduledTask(), 0, repeatTime, TimeUnit.MILLISECONDS);
-            acquireWakeLock(context, wakeLock);
         }
     }
 
@@ -186,8 +176,6 @@ public class DownLoadManagerService {
             if (!scheduler.isShutdown()) {
                 scheduler.shutdown();
                 context.unregisterReceiver(receiver1);
-                context.unregisterReceiver(receiver2);
-                releaseWakeLock(wakeLock);
                 scheduler = null;
             }
         }
@@ -221,32 +209,6 @@ public class DownLoadManagerService {
             stopWork();
         }else if(runningTasks.size() < threadSize && loop());
 
-    }
-
-    private void acquireWakeLock(Context context, PowerManager.WakeLock wakeLock) {
-        if (wakeLock == null) {
-            PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-            wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, this.getClass().getCanonicalName());
-            wakeLock.acquire();
-        }
-    }
-
-    private void releaseWakeLock(PowerManager.WakeLock wakeLock) {
-        if (wakeLock != null && wakeLock.isHeld()) {
-            wakeLock.release();
-            wakeLock = null;
-        }
-    }
-
-    private void networkJudge(){
-        if(context != null)
-            NET_STATE = isNetworkConnected(context);
-    }
-
-    private boolean isNetworkConnected(Context context) {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo ni = cm.getActiveNetworkInfo();
-        return ni != null && ni.isConnectedOrConnecting();
     }
 
     //-----------------------------------------
