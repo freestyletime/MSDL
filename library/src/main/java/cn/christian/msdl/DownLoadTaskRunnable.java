@@ -136,7 +136,7 @@ class DownLoadTaskRunnable implements Runnable {
             conn.disconnect();
             e.printStackTrace();
             task.status = DownLoadTaskStatus.ERROR;
-            task.e = new DownLoadException(1004);
+            task.e = new DownLoadException(e);
         }
 
         return conn;

@@ -13,11 +13,13 @@ package cn.christian.msdl;
  */
 public class DownLoadException extends RuntimeException {
 
-    private int eCode;
+    private static DownLoadException e;
+    private int eCode = 0;
 
     public DownLoadException(int eCode){
         super(code2message(eCode));
         this.eCode = eCode;
+        e = this;
     }
 
     public DownLoadException(String msg){
@@ -46,6 +48,8 @@ public class DownLoadException extends RuntimeException {
      * */
     public static String code2message(int eCode){
         switch (eCode){
+            case 0:
+                return e.getMessage();
 //            case 1000:
 //                return "Error: the object you injected must have a method like void fun(String id, DownLoadTaskStatus status, long length, long process, int errorCode)";
             case 1001:
@@ -54,8 +58,8 @@ public class DownLoadException extends RuntimeException {
                 return "Error: URL is invalid";
             case 1003:
                 return "Error: File can not be created, please check the base path you send";
-            case 1004:
-                return "Error: IOException, check out your current network environmnet";
+//            case 1004:
+//                return "Error: IOException, check out your current network environmnet";
             case 1005:
                 return "Error: Downloading is abort, because the file is not find";
             case 1006:
