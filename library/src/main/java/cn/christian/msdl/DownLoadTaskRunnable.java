@@ -45,7 +45,7 @@ class DownLoadTaskRunnable implements Runnable {
                 download(setting());
             } catch(FileNotFoundException e) {
                 task.status = DownLoadTaskStatus.ERROR;
-                task.e = new DownLoadException(1003);
+                task.e = new DownLoadException(DownLoadTaskExceptionCode.MSDL_CODE_FILE_DISABLE);
             }catch (IOException e) {
                 e.printStackTrace();
                 task.status = DownLoadTaskStatus.ERROR;
@@ -60,7 +60,7 @@ class DownLoadTaskRunnable implements Runnable {
 
         if(task.url == null || !URLUtil.isValidUrl(task.url)){
             task.status = DownLoadTaskStatus.ERROR;
-            task.e = new DownLoadException(1002);
+            task.e = new DownLoadException(DownLoadTaskExceptionCode.MSDL_CODE_URL_INVALID);
             return false;
         }
 
@@ -73,7 +73,7 @@ class DownLoadTaskRunnable implements Runnable {
                 e.printStackTrace();
                 file = null;
                 task.status = DownLoadTaskStatus.ERROR;
-                task.e = new DownLoadException(1003);
+                task.e = new DownLoadException(DownLoadTaskExceptionCode.MSDL_CODE_FILE_DISABLE);
                 return false;
             }
         }
@@ -118,7 +118,7 @@ class DownLoadTaskRunnable implements Runnable {
                     task.process = file.length();
                 } else {
                     task.status = DownLoadTaskStatus.ERROR;
-                    task.e = new DownLoadException(code);
+                    task.e = new DownLoadException(DownLoadTaskExceptionCode.MSDL_CODE_CONNECTION_FAIL, code);
                 }
             }else{
                 task.status = DownLoadTaskStatus.FINISH;
@@ -160,7 +160,7 @@ class DownLoadTaskRunnable implements Runnable {
                         if (!file.exists()) {
                             close(conn, is, raf);
                             task.status = DownLoadTaskStatus.ERROR;
-                            task.e = new DownLoadException(1005);
+                            task.e = new DownLoadException(DownLoadTaskExceptionCode.MSDL_CODE_DOWNLOAD_ABORT);
                             break;
                         }
 
@@ -175,7 +175,7 @@ class DownLoadTaskRunnable implements Runnable {
                         } else {
                             file.deleteOnExit();
                             task.status = DownLoadTaskStatus.ERROR;
-                            task.e = new DownLoadException(1006);
+                            task.e = new DownLoadException(DownLoadTaskExceptionCode.MSDL_CODE_DOWNLOAD_FILE_SIZE_INVALID);
                             break;
                         }
                     }

@@ -14,7 +14,9 @@ package cn.christian.msdl;
 public class DownLoadException extends RuntimeException {
 
     private static DownLoadException e;
-    private int eCode = 0;
+
+    public int eCode = 0;
+    public int statusCode = 0;
 
     public DownLoadException(int eCode){
         super(code2message(eCode));
@@ -28,15 +30,12 @@ public class DownLoadException extends RuntimeException {
 
     public DownLoadException(Throwable e){
         super(e);
+        this.eCode = DownLoadTaskExceptionCode.MSDL_CODE_OTHER;
     }
 
-    public int getEcode(){
-        return eCode;
-    }
-
-    @Override
-    public void printStackTrace() {
-        super.printStackTrace();
+    public DownLoadException(int eCode, int statusCode){
+        this(eCode);
+        this.statusCode = statusCode;
     }
 
     /**
@@ -48,24 +47,20 @@ public class DownLoadException extends RuntimeException {
      * */
     public static String code2message(int eCode){
         switch (eCode){
-            case 0:
+            case DownLoadTaskExceptionCode.MSDL_CODE_OTHER:
                 return e.getMessage();
-//            case 1000:
-//                return "Error: the object you injected must have a method like void fun(String id, DownLoadTaskStatus status, long length, long process, int errorCode)";
-//            case 1001:
-//                return "Error: File path is invalid";
-            case 1002:
+            case DownLoadTaskExceptionCode.MSDL_CODE_URL_INVALID:
                 return "Error: URL is invalid";
-            case 1003:
+            case DownLoadTaskExceptionCode.MSDL_CODE_FILE_DISABLE:
                 return "Error: File can not be created";
-//            case 1004:
-//                return "Error: IOException, check out your current network environmnet";
-            case 1005:
+            case DownLoadTaskExceptionCode.MSDL_CODE_DOWNLOAD_ABORT:
                 return "Error: Downloading is abort, because the file is not find";
-            case 1006:
+            case DownLoadTaskExceptionCode.MSDL_CODE_DOWNLOAD_FILE_SIZE_INVALID:
                 return "Error: Downloaded file's size goes wrong, please Doanload it again";
+            case DownLoadTaskExceptionCode.MSDL_CODE_CONNECTION_FAIL:
+                return "Error: Connection failed";
             default:
-                return "Error: Connection failed, the http statuscode is "+ eCode;
+                return "";
         }
     }
 }
