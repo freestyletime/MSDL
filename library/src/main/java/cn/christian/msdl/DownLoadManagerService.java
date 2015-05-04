@@ -162,7 +162,7 @@ public class DownLoadManagerService {
                 scheduler = null;
             }
         }finally {
-        lock.unlock();
+            lock.unlock();
         }
     }
 
@@ -246,16 +246,15 @@ public class DownLoadManagerService {
     }
 
     void add(DownLoadTask task){
-        if(task == null)
-            return;
+        if(task == null) return;
 
         boolean isExecute = false;
 
         if(runningTasks.size() >= threadSize){
             wattingTasks.offer(task);
         }else{
-          if(allTasks.size() == 0) startWork();
-          isExecute = true;
+            if(allTasks.size() == 0) startWork();
+            isExecute = true;
         }
 
         if(isExecute) {
@@ -268,6 +267,8 @@ public class DownLoadManagerService {
     }
 
     void add(DownLoadTask task, DownLoadTaskListener listener){
+        if(listener == null) return;
+
         add(task);
         listeners2.put(task.id, listener);
     }

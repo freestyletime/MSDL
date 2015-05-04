@@ -92,6 +92,15 @@ public class DownLoadManager implements DownLoader{
     }
 
     @Override
+    public String add(String url, DownLoadTaskListener listener) {
+        if(null == url) return "";
+
+        DownLoadTask task = new DownLoadTask(DownLoadUtils.uniqueId(), url, DownLoadUtils.makePath(service.basePath, url));
+        service.add(task, listener);
+        return task.id;
+    }
+
+    @Override
     public void add(String id, String url) {
         if(null == id || null == url || "".equals(id) || "".equals(url)) return;
         if(query(id) != null) return;

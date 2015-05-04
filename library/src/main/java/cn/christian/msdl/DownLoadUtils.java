@@ -1,15 +1,9 @@
 package cn.christian.msdl;
 
-import android.webkit.URLUtil;
-import org.apache.http.protocol.HTTP;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Calendar;
 import java.util.UUID;
 import java.util.concurrent.locks.Lock;

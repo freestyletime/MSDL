@@ -64,6 +64,14 @@ public interface DownLoader {
     /**
      * Add and start a new task to the download queue.
      *
+     * @param url A http URL user should be provided
+     * @param listener callback
+     * @return A unique id that the task belong to
+     * */
+    String add(String url, DownLoadTaskListener listener);
+    /**
+     * Add and start a new task to the download queue.
+     *
      * @param id The task's unique id
      * @param url A http URL user should be provided
      * */
