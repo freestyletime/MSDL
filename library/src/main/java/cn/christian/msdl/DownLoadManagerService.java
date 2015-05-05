@@ -328,8 +328,8 @@ public class DownLoadManagerService {
 
         if(allTasks.containsKey(id)){
             task = allTasks.get(id);
-            if(!task.isCancel)
-                task.isCancel = true;
+            if(!task.isCancel) task.isCancel = true;
+            if(task.isPause) task.status = DownLoadTaskStatus.CANCEL;
         }
     }
 

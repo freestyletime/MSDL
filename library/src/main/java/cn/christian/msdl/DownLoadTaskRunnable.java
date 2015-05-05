@@ -147,16 +147,12 @@ class DownLoadTaskRunnable implements Runnable {
             byte[] bytes = new byte[buffer];
 
             do {
-                if(task.isCancel){
+                if(task.isPause || task.isCancel){
                     close(conn, is, raf);
-                    task.status = DownLoadTaskStatus.CANCEL;
+
+                    if(task.isPause) task.status = DownLoadTaskStatus.PAUSE;
+                    if(task.isCancel) task.status = DownLoadTaskStatus.CANCEL;
                     break;
-                }else if(task.isPause){
-                    close(conn, is, raf);
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) { }
-                    task.status = DownLoadTaskStatus.PAUSE;
                 }else{
                     if ((offset = is.read(bytes, 0, buffer)) > 0) {
                         if (!file.exists()) {
