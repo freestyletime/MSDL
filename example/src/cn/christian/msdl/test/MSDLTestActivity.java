@@ -161,8 +161,6 @@ public class MSDLTestActivity extends Activity implements View.OnClickListener{
                 bar.setProgress(((int)(progress*100/length)));
                 break;
             case ERROR:
-                process.setText(progress + "/" + length);
-                bar.setProgress(((int)(progress*100/length)));
                 Toast.makeText(this, task.e.getMessage(), Toast.LENGTH_LONG).show();
                 break;
             case WATTING:
