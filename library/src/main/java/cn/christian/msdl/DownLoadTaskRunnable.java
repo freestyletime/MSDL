@@ -111,10 +111,10 @@ class DownLoadTaskRunnable implements Runnable {
                 task.status = DownLoadTaskStatus.RUNNING;
                 task.length = length;
 
-                if (code == 200) {
+                if (code == HttpURLConnection.HTTP_OK) {
                     file.deleteOnExit();
                     file.createNewFile();
-                } else if (code == 206) {
+                } else if (code == HttpURLConnection.HTTP_PARTIAL) {
                     task.process = file.length();
                 } else {
                     task.status = DownLoadTaskStatus.ERROR;
@@ -150,11 +150,13 @@ class DownLoadTaskRunnable implements Runnable {
                 if(task.isCancel){
                     close(conn, is, raf);
                     task.status = DownLoadTaskStatus.CANCEL;
-                    return;
+                    break;
                 }else if(task.isPause){
                     close(conn, is, raf);
+                    try {
+                        Thread.sleep(10);
+                    } catch (InterruptedException e) { }
                     task.status = DownLoadTaskStatus.PAUSE;
-                    return;
                 }else{
                     if ((offset = is.read(bytes, 0, buffer)) > 0) {
                         if (!file.exists()) {

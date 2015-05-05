@@ -1,15 +1,15 @@
 package cn.christian.msdl;
 
 /**
- * Created by IntelliJ IDEA
+ * Created in IntelliJ IDEA.
+ * MSDL
+ * cn.christian.msdl
  *
- * @Author : Cheng Chen
- * @Mail : freestyletime@foxmail.com
- * @Project : cc
- * @Package : cn.christian.msdl
- * @Version : 1.0
+ * @author Christian_Chen
+ * @github freestyletime@foxmail.com
+ * @mail mailchristianchen@gmail.com
  * @Time : 5/4/15 10:12 AM
- * @Description :
+ * @Description : Exception code map
  */
 public class DownLoadTaskExceptionCode {
     public static final int MSDL_CODE_CONNECTION_FAIL = 0x00999;

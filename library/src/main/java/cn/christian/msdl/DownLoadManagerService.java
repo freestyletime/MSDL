@@ -23,6 +23,7 @@ public class DownLoadManagerService {
 
     private static DownLoadManagerService service = new DownLoadManagerService();
 
+    private DownLoadLogger logger = new DownLoadLogger();
     private Lock lock = new ReentrantLock();
 
     private final String defaultBasePath = "/sdcard/download/";
@@ -40,7 +41,6 @@ public class DownLoadManagerService {
 
     private ScheduledExecutorService scheduler;
     private class DownLoadScheduledTask implements Runnable{
-
         @Override
         public void run() {
             call();
@@ -49,6 +49,7 @@ public class DownLoadManagerService {
 
     private void call() {
         lock.lock();
+        StringBuffer logs = new StringBuffer();
 
         try{
             Set<Map.Entry<Object, Method>> callbackEntrys = DownLoadManagerService.this.callbacks.entrySet();
@@ -59,8 +60,26 @@ public class DownLoadManagerService {
             Method callback;
 
             for(DownLoadTask task : tasks) {
-                if(DownLoadManagerService.this.wattingTasks.contains(task) && task.isCancel)
+                //log collection
+                logs.append("\n---------------Task#" + task.id + "---------------\n");
+                logs.append("STATUS: " + task.status.toString() + "\n");
+                logs.append("URL: " + task.url + "\n");
+                logs.append("PATH: " + task.path + "\n");
+                logs.append("LEN: " + task.length + "\n");
+                logs.append("PROCESS: " + task.process + "\n");
+                if(task.length != 0){
+                    logs.append("PERCENT: " + ((int)((task.process*100)/task.length)) + "\n");
+                }
+                if(task.e != null) {
+                    logs.append("ECODE: " + task.e.eCode + "\n");
+                    logs.append("ERROR: " + task.e.getMessage() + "\n");
+                }
+                logs.append("---------------Task#" + task.id + "---------------\n");
+
+
+                if(DownLoadManagerService.this.wattingTasks.contains(task) && task.isCancel) {
                     task.status = DownLoadTaskStatus.CANCEL;
+                }
 
                 for (Map.Entry<Object, Method> entry : callbackEntrys) {
                     obj = entry.getKey();
@@ -130,6 +149,8 @@ public class DownLoadManagerService {
             e.printStackTrace();
         }finally {
             lock.unlock();
+            logger.debug(logs.toString());
+            logs = null;
         }
     }
 

@@ -13,19 +13,23 @@ package cn.christian.msdl;
  */
 public class DownLoadException extends RuntimeException {
 
-    private static DownLoadException e;
-
+    /**
+     * Exception's error code
+     * */
     public int eCode = 0;
+    /**
+     * Exception's http status code
+     * */
     public int statusCode = 0;
 
     public DownLoadException(int eCode){
         super(code2message(eCode));
         this.eCode = eCode;
-        e = this;
     }
 
     public DownLoadException(String msg){
         super(msg);
+        this.eCode = DownLoadTaskExceptionCode.MSDL_CODE_OTHER;
     }
 
     public DownLoadException(Throwable e){
@@ -45,10 +49,11 @@ public class DownLoadException extends RuntimeException {
      * @return The result of the exception
      *
      * */
-    public static String code2message(int eCode){
+    private static String code2message(int eCode){
+        if(DownLoadTaskExceptionCode.MSDL_CODE_OTHER == eCode)
+            throw new RuntimeException("Can't init DownLoadException in eCode of DownLoadTaskExceptionCode.MSDL_CODE_OTHER");
+
         switch (eCode){
-            case DownLoadTaskExceptionCode.MSDL_CODE_OTHER:
-                return e.getMessage();
             case DownLoadTaskExceptionCode.MSDL_CODE_URL_INVALID:
                 return "Error: URL is invalid";
             case DownLoadTaskExceptionCode.MSDL_CODE_FILE_DISABLE:

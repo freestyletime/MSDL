@@ -25,6 +25,12 @@ public interface DownLoader {
      * */
     void unRegister(Object obj);
     /**
+     * Unregister a object before you attached.
+     *
+     * @param debug Set MSDL debug log print, default -> true.
+     * */
+    DownLoader debug(boolean debug);
+    /**
      * Set the time that will call the callback to the Mainthread you register.
      *
      * @param interval Repeat time (millisecond)

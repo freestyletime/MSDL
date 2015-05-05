@@ -48,6 +48,12 @@ public class DownLoadManager implements DownLoader{
     }
 
     @Override
+    public DownLoader debug(boolean debug) {
+        DownLoadLogger.DEBUG = debug;
+        return this;
+    }
+
+    @Override
     public DownLoader setRepeatTime(long interval) {
         if(interval > 0 )
             service.setRepeatTime(interval);
