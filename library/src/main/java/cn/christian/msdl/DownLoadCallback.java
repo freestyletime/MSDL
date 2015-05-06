@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
  * @github freestyletime@foxmail.com
  * @mail mailchristianchen@gmail.com
  * @time 14-9-16 下午1:51
- * @describtion A flag that user can use is in his own method.
+ * @describtion A flag that user can use this in his own method.
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
