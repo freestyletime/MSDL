@@ -19,6 +19,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface DownLoadCallback {
-    //--- sample method ---
+    //--- sample method ---no
     //void fun(DownLoadUserTask task);
 }

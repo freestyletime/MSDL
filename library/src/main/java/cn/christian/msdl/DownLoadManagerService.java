@@ -261,13 +261,20 @@ public class DownLoadManagerService {
             callbacks.remove(obj);
     }
 
+    void setListener(String id, DownLoadTaskListener listener){
+        if(id != null && listener != null) {
+            if(listeners2.containsKey(id))
+                listeners2.put(id, listener);
+        }
+    }
+
     void setListener(DownLoadTaskListener listener){
         if(listener != null && !listeners.contains(listener))
             listeners.add(listener);
     }
 
     void add(DownLoadTask task){
-        if(task == null) return;
+        if(task == null || allTasks.containsKey(task.id) && allTasks.containsValue(task)) return;
 
         boolean isExecute = false;
 

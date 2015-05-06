@@ -109,6 +109,13 @@ public interface DownLoader {
      * */
     void cancel(String id);
     /**
+     * Set a callback to listen the tasks status change with unique id.
+     *
+     * @param id The task's unique id
+     * @param listener callback
+     * */
+    void setOnDownLoadTaskListener(String id, DownLoadTaskListener listener);
+    /**
      * Set a callback to listen the tasks status change.
      *
      * @param listener The listener of user set

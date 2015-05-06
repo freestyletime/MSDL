@@ -136,6 +136,12 @@ public class DownLoadManager implements DownLoader{
     }
 
     @Override
+    public void setOnDownLoadTaskListener(String id, DownLoadTaskListener listener) {
+        if(id == null || listener == null)return;
+        service.setListener(id, listener);
+    }
+
+    @Override
     public void setOnDownLoadTaskListener(DownLoadTaskListener listener) {
         service.setListener(listener);
     }
