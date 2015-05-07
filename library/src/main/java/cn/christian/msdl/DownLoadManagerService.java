@@ -50,6 +50,7 @@ public class DownLoadManagerService {
     private void call() {
         lock.lock();
         StringBuffer logs = new StringBuffer();
+        DownLoadTask task = null;
 
         try{
             Set<Map.Entry<Object, Method>> callbackEntrys = DownLoadManagerService.this.callbacks.entrySet();
@@ -60,7 +61,7 @@ public class DownLoadManagerService {
             Method callback;
 
             for(DownLoadTask tmp : tasks) {
-                DownLoadTask task = tmp.clone();
+                task = tmp.clone();
                 //log collection
                 logs.append("\n---------------Task#" + task.id + "---------------\n");
                 logs.append("STATUS: " + task.status.toString() + "\n");
@@ -147,6 +148,7 @@ public class DownLoadManagerService {
             lock.unlock();
             logger.debug(logs.toString());
             logs = null;
+            task = null;
         }
     }
 
@@ -331,7 +333,7 @@ public class DownLoadManagerService {
         if(allTasks.containsKey(id)){
             task = allTasks.get(id);
             if(!task.isCancel) task.isCancel = true;
-            if(task.isPause) task.status = DownLoadTaskStatus.CANCEL;
+            if(wattingTasks.contains(task) || task.isPause) task.status = DownLoadTaskStatus.CANCEL;
         }
     }
 
