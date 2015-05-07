@@ -42,6 +42,7 @@ public class MSDLTestItem implements DownLoadTaskListener{
 
     View root;
     ViewRoot tag;
+
     /** 0-start 1-watting 2-running 3-pause 4-cancel 5-error 6-finish*/
     AtomicInteger flag = new AtomicInteger(0);
     AtomicInteger clickFlag = new AtomicInteger(0);
@@ -157,7 +158,8 @@ public class MSDLTestItem implements DownLoadTaskListener{
     @Override
     public void running(String id, long length, long process) {
         flag.set(2);
-        Message.obtain(handler, flag.get(), (int)process, (int)length).sendToTarget();
+        int percent = (int)((process * 100) / length);
+        Message.obtain(handler, flag.get(), percent, (int)process).sendToTarget();
     }
     @Override
     public void waitting(String id) {
@@ -195,7 +197,7 @@ public class MSDLTestItem implements DownLoadTaskListener{
         @Override
         public void handleMessage(Message msg) {
             if(tag == null) return;
-            int flag = MSDLTestItem.this.flag.get();
+            int flag = msg.what;
             int clickFlag = MSDLTestItem.this.clickFlag.get();
 
             switch (flag){
@@ -203,8 +205,8 @@ public class MSDLTestItem implements DownLoadTaskListener{
                     tag.btn.setText(R.string.waiting);
                     break;
                 case 2:
-                    tag.process.setText(String.format(c.getString(R.string.process), msg.arg1, msg.arg2));
-                    tag.bar.setProgress(((int)(msg.arg1 * 100 / msg.arg2)));
+                    tag.process.setText(String.format(c.getString(R.string.process), msg.arg2, b.length));
+                    tag.bar.setProgress(msg.arg1);
                     tag.btn.setText(R.string.pause);
                     break;
                 case 3:
