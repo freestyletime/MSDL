@@ -1,18 +1,11 @@
 package cn.christian.msdl.test;
 
-import android.app.Activity;
+import android.app.ListActivity;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Message;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
-import cn.christian.msdl.*;
+import cn.christian.msdl.DownLoader;
 
-import java.io.File;
+import java.util.LinkedList;
 
 /**
  * Created in IntelliJ IDEA.
@@ -25,181 +18,112 @@ import java.io.File;
  * @time 14-9-21 上午12:06
  * @describtion Test Activity
  */
-public class MSDLTestActivity extends Activity implements View.OnClickListener{
+public class MSDLTestActivity extends ListActivity {
 
-    MSDLTestApplication application;
     DownLoader downLoader;
 
-    TextView name;
-    TextView process;
-    ProgressBar bar;
-    Button bt;
-
-    DownLoadTaskStatus status = null;
-    String task_id = "0";
-    String basePath = Environment.getExternalStorageDirectory().getAbsolutePath();
-    long progress = 0L;
-    long length = 30490582L;
-    String url = "http://gdown.baidu.com/data/wisegame/d52c3b17d08b2a53/baiduditu_568.apk";
-    File apk = new File(basePath, url.substring(url.lastIndexOf("/")));
-
-
-    Handler handler = new Handler(){
-        @Override
-        public void handleMessage(Message msg) {
-            if(msg.obj instanceof DownLoadUserTask){
-                DownLoadUserTask task = (DownLoadUserTask) msg.obj;
-                dealTaskStatus(task);
-            }
-        }
-    };
+    LinkedList<MSDLTestItem> beans = new LinkedList<MSDLTestItem>();
+    MSDLTestAdapter adapter = new MSDLTestAdapter(beans);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        downLoader = MSDLTestApplication.downLoader;
+        setListAdapter(adapter);
 
-        application = (MSDLTestApplication) getApplication();
-        downLoader = application.downLoader.setBasePath(basePath);
-        downLoader.register(this);
+        //----------------config-----------------
+        String basePath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+        downLoader
+                .setBasePath(basePath)
+                .setRepeatTime(1000)
+                .debug(true)
+                .setThreadSize(3);
 
-        name = (TextView) findViewById(R.id.tv_name);
-        process = (TextView) findViewById(R.id.tv_process);
-        bar = (ProgressBar) findViewById(R.id.pb);
-        bt = (Button) findViewById(R.id.btn);
-        bt.setOnClickListener(this);
-
-        findViewById(R.id.btn2).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                downLoader.cancel(task_id);
-            }
-        });
-
-        name.setText("Task#"+task_id);
-
-        if(apk.exists()){
-            progress = apk.length();
-
-            if(progress == length){
-                bt.setText("finish:" + apk.getAbsolutePath());
-                bt.setEnabled(false);
-                status = DownLoadTaskStatus.FINISH;
-            }
-        }
-
-        process.setText(progress + "/" + length);
-        bar.setProgress(((int)(progress*100/length)));
+        setData(basePath);
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
+    private void setData(String basePath) {
+        MSDLTestBean bean1 = new MSDLTestBean(
+                "0",
+                "http://gdown.baidu.com/data/wisegame/d52c3b17d08b2a53/baiduditu_568.apk",
+                "baiduditu_568.apk",
+                basePath,
+                30490582);
 
-        if(status == null){
-            DownLoadUserTask task = null;
-            status = (task = downLoader.query(task_id)) == null ? null : task.status;
-            changeBtn(status);
-        }
-    }
+        MSDLTestBean bean2 = new MSDLTestBean(
+                "1",
+                "http://gdown.baidu.com/data/wisegame/6fe7456c3e3c7afb/shoujibaidu_16787209.apk",
+                "shoujibaidu_16787209.apk",
+                basePath,
+                24338211);
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        downLoader.unRegister(this);
-    }
+        MSDLTestBean bean3 = new MSDLTestBean(
+                "2",
+                "http://gdown.baidu.com/data/wisegame/fb35bba8f4a4e728/baiduliulanqi_71.apk",
+                "baiduliulanqi_71.apk",
+                basePath,
+                17198854);
 
-    @DownLoadCallback
-    public void fun(DownLoadUserTask task){
-        Message.obtain(handler, 0, task).sendToTarget();
-    }
+        MSDLTestBean bean4 = new MSDLTestBean(
+                "3",
+                "http://gdown.baidu.com/data/wisegame/01b8d9054ff3210b/baidushoujizhushou_16785259.apk",
+                "baidushoujizhushou_16785259.apk",
+                basePath,
+                6297500);
 
-    @Override
-    public void onClick(View view) {
-        if(status == null){
-            downLoader.add(task_id, url);
-        }else
-            switch (status){
-                case RUNNING:
-                    downLoader.pause(task_id);
-                    break;
-                case WATTING:
-                    downLoader.cancel(task_id);
-                    break;
-                case PAUSE:
-                    downLoader.resume(task_id);
-                    break;
-                case CANCEL:
-                    downLoader.add(task_id, url);
-                    break;
-                case FINISH:
-                    downLoader.cancel(task_id);
-                    break;
-                case ERROR:
-                    downLoader.add(task_id, url);
-                    break;
-            }
-    }
+        MSDLTestBean bean5 = new MSDLTestBean(
+                "4",
+                "http://gdown.baidu.com/data/wisegame/0d332439f0cb4962/baidushipin_1071101820.apk",
+                "baidushipin_1071101820.apk",
+                basePath,
+                23130569);
 
-    private void dealTaskStatus(DownLoadUserTask task){
-        if(!task.id.equals(task_id))return;
+        MSDLTestBean bean6 = new MSDLTestBean(
+                "5",
+                "http://gdown.baidu.com/data/wisegame/f54b8d57b3bdaddb/kaixinbuyu_15.apk",
+                "kaixinbuyu_15.apk",
+                basePath,
+                15689347);
 
-        status = task.status;
-        progress = task.process;
-        changeBtn(task.status);
+        MSDLTestBean bean7 = new MSDLTestBean(
+                "6",
+                "http://gdown.baidu.com/data/wisegame/82e5813de6e901af/UCliulanqi_165.apk",
+                "UCliulanqi_165.apk",
+                basePath,
+                19475231);
 
-        switch (task.status){
-            case RUNNING:
-                if(task.length != length) {
-                    Toast.makeText(this, "length error!", Toast.LENGTH_LONG).show();
-                    return;
-                }
-            case PAUSE:
-            case CANCEL:
-            case FINISH:
-                process.setText(progress + "/" + length);
-                bar.setProgress(((int)(progress*100/length)));
-                break;
-            case ERROR:
-                Toast.makeText(this, task.e.getMessage(), Toast.LENGTH_LONG).show();
-                break;
-            case WATTING:
-                break;
-        }
-    }
+        MSDLTestBean bean8 = new MSDLTestBean(
+                "7",
+                "http://gdown.baidu.com/data/wisegame/17e6ef4d841b0a96/YY_30045.apk",
+                "YY_30045.apk",
+                basePath,
+                27147972);
 
-    private void changeBtn(DownLoadTaskStatus status){
-           if(status != null)
-               switch (status){
-                   case RUNNING:
-                       bt.setText("pause");
-                       if(!bt.isEnabled()) bt.setEnabled(true);
+        MSDLTestBean bean9 = new MSDLTestBean(
+                "8",
+                "http://gdown.baidu.com/data/wisegame/9f919014f6acc26b/duoshuoyingyu_4.apk",
+                "duoshuoyingyu_4.apk",
+                basePath,
+                16139878);
 
-                       break;
-                   case WATTING:
-                       bt.setText("cancel");
-                       if(bt.isEnabled()) bt.setEnabled(true);
+        MSDLTestBean bean10 = new MSDLTestBean(
+                "9",
+                "http://gdown.baidu.com/data/wisegame/9a012dfd36a7dfdb/gushicidian_32.apk",
+                "gushicidian_32.apk",
+                basePath,
+                24575788);
 
-                       break;
-                   case PAUSE:
-                       bt.setText("continue");
-                       if(!bt.isEnabled()) bt.setEnabled(true);
+        beans.add(new MSDLTestItem(this, downLoader, bean1));
+        beans.add(new MSDLTestItem(this, downLoader, bean2));
+        beans.add(new MSDLTestItem(this, downLoader, bean3));
+        beans.add(new MSDLTestItem(this, downLoader, bean4));
+        beans.add(new MSDLTestItem(this, downLoader, bean5));
+        beans.add(new MSDLTestItem(this, downLoader, bean6));
+        beans.add(new MSDLTestItem(this, downLoader, bean7));
+        beans.add(new MSDLTestItem(this, downLoader, bean8));
+        beans.add(new MSDLTestItem(this, downLoader, bean9));
+        beans.add(new MSDLTestItem(this, downLoader, bean10));
 
-                       break;
-                   case CANCEL:
-                       bt.setText("start");
-                       if(bt.isEnabled()) bt.setEnabled(true);
-
-                       break;
-                   case FINISH:
-                       bt.setText("finish:" + apk.getAbsolutePath());
-                       if(bt.isEnabled()) bt.setEnabled(false);
-
-                       break;
-                   case ERROR:
-                       bt.setText("start");
-                       if(bt.isEnabled()) bt.setEnabled(true);
-                       break;
-               }
+        adapter.notifyDataSetChanged();
     }
 }
