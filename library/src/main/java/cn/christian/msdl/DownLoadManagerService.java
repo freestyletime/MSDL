@@ -59,7 +59,8 @@ public class DownLoadManagerService {
             Object obj;
             Method callback;
 
-            for(DownLoadTask task : tasks) {
+            for(DownLoadTask tmp : tasks) {
+                DownLoadTask task = tmp.clone();
                 //log collection
                 logs.append("\n---------------Task#" + task.id + "---------------\n");
                 logs.append("STATUS: " + task.status.toString() + "\n");
@@ -67,19 +68,14 @@ public class DownLoadManagerService {
                 logs.append("PATH: " + task.path + "\n");
                 logs.append("LEN: " + task.length + "\n");
                 logs.append("PROCESS: " + task.process + "\n");
-                if(task.length != 0){
-                    logs.append("PERCENT: " + ((int)((task.process*100)/task.length)) + "\n");
+                if (task.length != 0) {
+                    logs.append("PERCENT: " + ((int) ((task.process * 100) / task.length)) + "\n");
                 }
-                if(task.e != null) {
+                if (task.e != null) {
                     logs.append("ECODE: " + task.e.eCode + "\n");
                     logs.append("ERROR: " + task.e.getMessage() + "\n");
                 }
                 logs.append("---------------Task#" + task.id + "---------------\n");
-
-
-                if(DownLoadManagerService.this.wattingTasks.contains(task) && task.isCancel) {
-                    task.status = DownLoadTaskStatus.CANCEL;
-                }
 
                 for (Map.Entry<Object, Method> entry : callbackEntrys) {
                     obj = entry.getKey();
@@ -87,8 +83,8 @@ public class DownLoadManagerService {
                     callback.invoke(obj, task);
                 }
 
-                for(DownLoadTaskListener listener : listeners){
-                    switch (task.status){
+                for (DownLoadTaskListener listener : listeners) {
+                    switch (task.status) {
                         case RUNNING:
                             listener.running(task.id, task.length, task.process);
                             break;
@@ -111,9 +107,9 @@ public class DownLoadManagerService {
                 }
 
                 for (Map.Entry<String, DownLoadTaskListener> entry : listenersEntrys) {
-                    if(entry.getKey().equals(task.id)){
+                    if (entry.getKey().equals(task.id)) {
                         DownLoadTaskListener listener = entry.getValue();
-                        switch (task.status){
+                        switch (task.status) {
                             case RUNNING:
                                 listener.running(task.id, task.length, task.process);
                                 break;
@@ -136,7 +132,7 @@ public class DownLoadManagerService {
                     }
                 }
 
-                switch (task.status){
+                switch (task.status) {
                     case CANCEL:
                     case FINISH:
                     case ERROR:
@@ -263,8 +259,7 @@ public class DownLoadManagerService {
 
     void setListener(String id, DownLoadTaskListener listener){
         if(id != null && listener != null) {
-            if(listeners2.containsKey(id))
-                listeners2.put(id, listener);
+            if(listeners2.containsKey(id)) listeners2.put(id, listener);
         }
     }
 
@@ -274,7 +269,7 @@ public class DownLoadManagerService {
     }
 
     void add(DownLoadTask task){
-        if(task == null || allTasks.containsKey(task.id) && allTasks.containsValue(task)) return;
+        if(task == null) return;
 
         boolean isExecute = false;
 

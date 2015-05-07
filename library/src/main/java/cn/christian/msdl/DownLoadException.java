@@ -63,7 +63,9 @@ public class DownLoadException extends RuntimeException {
             case DownLoadTaskExceptionCode.MSDL_CODE_DOWNLOAD_FILE_SIZE_INVALID:
                 return "Error: Downloaded file's size goes wrong, please Doanload it again";
             case DownLoadTaskExceptionCode.MSDL_CODE_CONNECTION_FAIL:
-                return "Error: Connection failed";
+                return "Error: Connection failed, please get the http statuscode";
+            case DownLoadTaskExceptionCode.MSDL_CODE_DOWNLOAD_CANT_READ_FILE_LEN:
+                return "Error: Cannot read the file length from the http";
             default:
                 return "";
         }

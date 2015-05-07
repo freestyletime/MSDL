@@ -24,13 +24,4 @@ public class DownLoadUserTask {
     public DownLoadUserTask() {
     }
 
-    public DownLoadUserTask(String id, DownLoadTaskStatus status, long length, long process, DownLoadException e, String url, String path) {
-        this.id = id;
-        this.status = status;
-        this.length = length;
-        this.process = process;
-        this.e = e;
-        this.url = url;
-        this.path = path;
-    }
 }

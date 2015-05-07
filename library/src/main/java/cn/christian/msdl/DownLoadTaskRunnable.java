@@ -1,6 +1,7 @@
 package cn.christian.msdl;
 
 import android.webkit.URLUtil;
+import org.apache.http.protocol.HTTP;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -87,27 +88,27 @@ class DownLoadTaskRunnable implements Runnable {
 
         try {
             conn = (HttpURLConnection) url.openConnection();
-            long length = conn.getContentLength();
+            int code = conn.getResponseCode();
+            long length = 0;
+            if(code == HttpURLConnection.HTTP_OK) length = conn.getContentLength();
             conn.disconnect();
 
-            if(length != file.length()){
-                conn = (HttpURLConnection) url.openConnection();
-                conn.setDoOutput(false);
-                conn.setDoInput(true);
-                conn.setUseCaches(false);
+            if(length == -1 || length == 0){
+                task.status = DownLoadTaskStatus.ERROR;
+                task.e = new DownLoadException(DownLoadTaskExceptionCode.MSDL_CODE_DOWNLOAD_CANT_READ_FILE_LEN);
+            }else if(length != file.length()){
                 conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("GET");
-                if(TIMEOUT_CONN > 0)
-                    conn.setConnectTimeout(TIMEOUT_CONN);
-                if(TIMEOUT_READ > 0)
-                    conn.setReadTimeout(TIMEOUT_READ);
-
-                conn.setRequestProperty("Accept-Encoding", "musixmatch");
+                conn.setRequestProperty("Accept-Encoding", "*");
                 conn.setRequestProperty("Content-Type", "application/stream");
                 conn.setRequestProperty("Range", "bytes=" + file.length() + "-");
+
+                if(TIMEOUT_CONN > 0) conn.setConnectTimeout(TIMEOUT_CONN);
+                if(TIMEOUT_READ > 0) conn.setReadTimeout(TIMEOUT_READ);
+
                 conn.connect();
 
-                int code = conn.getResponseCode();
+                code = conn.getResponseCode();
                 task.status = DownLoadTaskStatus.RUNNING;
                 task.length = length;
 
@@ -125,7 +126,6 @@ class DownLoadTaskRunnable implements Runnable {
                 task.length = length;
                 task.process = file.length();
             }
-
         }catch (IOException e){
             conn.disconnect();
             e.printStackTrace();
@@ -137,7 +137,7 @@ class DownLoadTaskRunnable implements Runnable {
     }
 
     private void download(HttpURLConnection conn) throws IOException {
-        if(task.status.equals(DownLoadTaskStatus.RUNNING)){
+        if(conn != null && task.status.equals(DownLoadTaskStatus.RUNNING)){
             RandomAccessFile raf = new RandomAccessFile(file, "rwd");
             InputStream is = conn.getInputStream();
 
