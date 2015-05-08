@@ -6,6 +6,8 @@ import org.apache.http.protocol.HTTP;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Created in IntelliJ IDEA.
@@ -25,13 +27,15 @@ class DownLoadTaskRunnable implements Runnable {
 
     private File file;
     private DownLoadTask task;
+    Map<String, String> headers;
 
     DownLoadTaskRunnable(DownLoadTask task){
         this.task = task;
     }
 
-    DownLoadTaskRunnable(DownLoadTask task, int connectTimeout, int readTimeout){
+    DownLoadTaskRunnable(DownLoadTask task, Map<String, String> headers, int connectTimeout, int readTimeout){
         this(task);
+        this.headers = headers;
 
         if(connectTimeout > 0)
             this.TIMEOUT_CONN = connectTimeout;
@@ -102,6 +106,9 @@ class DownLoadTaskRunnable implements Runnable {
                 conn.setRequestProperty("Accept-Encoding", "*");
                 conn.setRequestProperty("Content-Type", "application/stream");
                 conn.setRequestProperty("Range", "bytes=" + file.length() + "-");
+                Set<Map.Entry<String, String>> headerEntrys = headers.entrySet();
+
+                for (Map.Entry<String, String> entry : headerEntrys) conn.setRequestProperty(entry.getKey(), entry.getValue());
 
                 if(TIMEOUT_CONN > 0) conn.setConnectTimeout(TIMEOUT_CONN);
                 if(TIMEOUT_READ > 0) conn.setReadTimeout(TIMEOUT_READ);

@@ -15,7 +15,7 @@ import java.lang.reflect.Method;
  */
 public class DownLoadManager implements DownLoader{
 
-    DownLoadManagerService service;
+    private DownLoadManagerService service;
 
     //-----------------------------------------
     private DownLoadManagerService getService(){
@@ -50,6 +50,12 @@ public class DownLoadManager implements DownLoader{
     @Override
     public DownLoader debug(boolean debug) {
         DownLoadLogger.DEBUG = debug;
+        return this;
+    }
+
+    @Override
+    public DownLoader addHeader(String key, String value) {
+
         return this;
     }
 
@@ -138,11 +144,6 @@ public class DownLoadManager implements DownLoader{
     @Override
     public void setOnDownLoadTaskListener(String id, DownLoadTaskListener listener) {
         service.setListener(id, listener);
-    }
-
-    @Override
-    public void setOnDownLoadTaskListener(DownLoadTaskListener listener) {
-        service.setListener(listener);
     }
 
     @Override

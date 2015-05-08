@@ -96,12 +96,7 @@ class DownLoadUtils {
      * @return File path
      * */
     public static String makePath(String basePath, String url){
-        lock.lock();
-        try{
-            return basePath + File.separator + url.substring(url.lastIndexOf("/"));
-        }finally {
-            lock.unlock();
-        }
+        return basePath + File.separator + url.substring(url.lastIndexOf("/"));
     }
 
     /**

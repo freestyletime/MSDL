@@ -27,37 +27,51 @@ public interface DownLoader {
     /**
      * Unregister a object before you attached.
      *
-     * @param debug Set MSDL debug log print, default -> true.
+     * @param debug Set MSDL debug log print, default -> true
+     * @return Itself
      * */
     DownLoader debug(boolean debug);
+    /**
+     * Add http header.
+     *
+     * @param key Http header key
+     * @param value Http header value
+     * @return Itself
+     * */
+    DownLoader addHeader(String key, String value);
     /**
      * Set the time that will call the callback to the Mainthread you register.
      *
      * @param interval Repeat time (millisecond)
+     * @return Itself
      * */
     DownLoader setRepeatTime(long interval);
     /**
      * Set running task size (just the running, not the waiting).
      *
-     * @param size a number(generally , range in 1-3)
+     * @param size a number(generally, Within 1 to 3)
+     * @return Itself
      * */
     DownLoader setThreadSize(int size);
     /**
      * Set the download base path(dir) , file will show in this dir when its download is finish.
      *
-     * @param path Absolute path(SD or internal)
+     * @param path Absolute path
+     * @return Itself
      * */
     DownLoader setBasePath(String path);
     /**
      * Set the connection timeout.
      *
      * @param timeout Allowed connection time (millisecond)
+     * @return Itself
      * */
     DownLoader setConnectTimeout(int timeout);
     /**
      * Set the reading datas timeout.
      *
      * @param timeout Allowed reading datas time (millisecond)
+     * @return Itself
      * */
     DownLoader setReadTimeout(int timeout);
     /**
@@ -116,16 +130,10 @@ public interface DownLoader {
      * */
     void setOnDownLoadTaskListener(String id, DownLoadTaskListener listener);
     /**
-     * Set a callback to listen the tasks status change.
-     *
-     * @param listener The listener of user set
-     * */
-    void setOnDownLoadTaskListener(DownLoadTaskListener listener);
-    /**
      * Query the managed task by id
      *
      * @param id The task's unique id
-     * @return It will return null if the task not exist in queue
+     * @return It will return null if the task not exist in download queue
      * */
     DownLoadUserTask query(String id);
 }

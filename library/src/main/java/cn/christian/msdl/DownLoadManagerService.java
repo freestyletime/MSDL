@@ -23,8 +23,8 @@ public class DownLoadManagerService {
 
     private static DownLoadManagerService service = new DownLoadManagerService();
 
-    private DownLoadLogger logger = new DownLoadLogger();
     private Lock lock = new ReentrantLock();
+    private DownLoadLogger logger = new DownLoadLogger();
 
     private final String defaultBasePath = "/sdcard/download/";
     private final int defaultThreadSize = 1;
@@ -34,10 +34,10 @@ public class DownLoadManagerService {
     private Queue<DownLoadTask> wattingTasks = new LinkedList<DownLoadTask>();
     private Queue<DownLoadTask> runningTasks = new LinkedList<DownLoadTask>();
     private Queue<DownLoadTask> pauseTasks = new LinkedList<DownLoadTask>();
-    private List<DownLoadTaskListener> listeners = new LinkedList<DownLoadTaskListener>();
-    private Map<String, DownLoadTaskListener> listeners2 = new ConcurrentHashMap<String, DownLoadTaskListener>();
+    private Map<String, DownLoadTaskListener> listeners = new ConcurrentHashMap<String, DownLoadTaskListener>();
     private Map<String, DownLoadTask> allTasks = new ConcurrentHashMap<String, DownLoadTask>();
     private Map<Object, Method> callbacks = new ConcurrentHashMap<Object, Method>();
+    private Map<String, String> headers = new ConcurrentHashMap<String, String>();
 
     private ScheduledExecutorService scheduler;
     private class DownLoadScheduledTask implements Runnable{
@@ -54,7 +54,7 @@ public class DownLoadManagerService {
 
         try{
             Set<Map.Entry<Object, Method>> callbackEntrys = DownLoadManagerService.this.callbacks.entrySet();
-            Set<Map.Entry<String, DownLoadTaskListener>> listenersEntrys = DownLoadManagerService.this.listeners2.entrySet();
+            Set<Map.Entry<String, DownLoadTaskListener>> listenersEntrys = DownLoadManagerService.this.listeners.entrySet();
             Collection<DownLoadTask> tasks = DownLoadManagerService.this.allTasks.values();
 
             Object obj;
@@ -82,29 +82,6 @@ public class DownLoadManagerService {
                     obj = entry.getKey();
                     callback = entry.getValue();
                     callback.invoke(obj, task);
-                }
-
-                for (DownLoadTaskListener listener : listeners) {
-                    switch (task.status) {
-                        case RUNNING:
-                            listener.running(task.id, task.length, task.process);
-                            break;
-                        case WATTING:
-                            listener.waitting(task.id);
-                            break;
-                        case PAUSE:
-                            listener.pause(task.id);
-                            break;
-                        case CANCEL:
-                            listener.cancel(task.id);
-                            break;
-                        case FINISH:
-                            listener.finish(task.id, task.path);
-                            break;
-                        case ERROR:
-                            listener.error(task.id, task.e);
-                            break;
-                    }
                 }
 
                 for (Map.Entry<String, DownLoadTaskListener> entry : listenersEntrys) {
@@ -249,6 +226,11 @@ public class DownLoadManagerService {
         readTimeout = timeout;
     }
 
+    void addHeader(String key, String value){
+        if(null == key || "" == key || null == value || "" == value) return;
+        headers.put(key, value);
+    }
+
     void bind(Object obj, Method method){
         if(obj != null && method != null && !callbacks.containsKey(obj))
             callbacks.put(obj, method);
@@ -261,13 +243,8 @@ public class DownLoadManagerService {
 
     void setListener(String id, DownLoadTaskListener listener){
         if(id != null && listener != null) {
-            if(listeners2.containsKey(id)) listeners2.put(id, listener);
+            if(listeners.containsKey(id)) listeners.put(id, listener);
         }
-    }
-
-    void setListener(DownLoadTaskListener listener){
-        if(listener != null && !listeners.contains(listener))
-            listeners.add(listener);
     }
 
     void add(DownLoadTask task){
@@ -283,7 +260,7 @@ public class DownLoadManagerService {
         }
 
         if(isExecute) {
-            threadPool.submit(new DownLoadTaskRunnable(task, connectionTimeout, readTimeout));
+            threadPool.submit(new DownLoadTaskRunnable(task, headers, connectionTimeout, readTimeout));
             runningTasks.offer(task);
         }
 
@@ -295,7 +272,7 @@ public class DownLoadManagerService {
         if(listener == null) return;
 
         add(task);
-        listeners2.put(task.id, listener);
+        listeners.put(task.id, listener);
     }
 
     void resume(String id) {

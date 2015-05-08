@@ -21,7 +21,7 @@ class DownLoadThreadFactory implements ThreadFactory {
 
     @Override
     public Thread newThread(Runnable r) {
-        Thread t = new Thread(r, "#MSDL Christian_Chen Thread_#" + index.getAndIncrement());
+        Thread t = new Thread(r, "#MSDL Thread_#" + index.getAndIncrement());
         t.setPriority(Thread.MAX_PRIORITY);
         return t;
     }

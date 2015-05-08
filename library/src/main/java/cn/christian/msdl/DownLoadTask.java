@@ -25,6 +25,7 @@ class DownLoadTask extends DownLoadUserTask implements Cloneable{
 
     @Override
     protected DownLoadTask clone() {
+
         DownLoadTask task = new DownLoadTask(this.id, this.url, this.path);
         task.length = this.length;
         task.process = this.process;
@@ -32,7 +33,6 @@ class DownLoadTask extends DownLoadUserTask implements Cloneable{
         task.status = this.status;
         task.isCancel = this.isCancel;
         task.isPause = this.isPause;
-
         return task;
     }
 }
