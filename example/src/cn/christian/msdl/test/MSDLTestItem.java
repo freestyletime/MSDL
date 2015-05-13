@@ -112,7 +112,7 @@ public class MSDLTestItem implements DownLoadTaskListener{
         if(task == null){
             if(p == b.length){
                 tag.btn.setText(R.string.finish);
-                flag.set(4);
+                flag.set(6);
             }else {
                 if(p == 0)
                     tag.btn.setText(R.string.start);
