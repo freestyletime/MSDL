@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MDSL</string>
+    <!-- task status -->
+    <string name="start">start</string>
+    <string name="resume">resume</string>
+    <string name="cancle">cancle</string>
+    <string name="waiting">waiting</string>
+    <string name="finish">finish</string>
+
+
+    <string name="process">%1$d / %2$d</string>
+</resources>
