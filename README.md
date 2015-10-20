@@ -20,7 +20,12 @@ Java File DownloadManager
 ***
 ###ProGuard configuration
 #####ProGuard obfuscates method names. And the fun methods can renamed because they are accessed using reflection by annotation of `DownLoadCallback`. Use the following snip in your ProGuard configuration file (proguard.cfg):
+      -dontwarn cn.christian.**
       -keepattributes *Annotation*
+      -keep class cn.christian.** { *; }
+      -keepclassmembers class * {
+            @cn.christian.msdl.DownLoadCallback *;
+      }
 ***
 ###Copyright and License
 #####Code released under the BSD license.
