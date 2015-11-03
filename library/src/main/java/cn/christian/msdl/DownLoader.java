@@ -40,6 +40,14 @@ public interface DownLoader {
      * */
     DownLoader addHeader (String key, String value);
     /**
+     * set all http request method, get or post.
+     * default method is get
+     *
+     * @param method Http request method
+     * @return Itself
+     * */
+    DownLoader setMethod (DownLoadTaskMethod method);
+    /**
      * Set the time that will call the callback to the Mainthread you register.
      *
      * @param interval Repeat time (millisecond)
@@ -85,10 +93,27 @@ public interface DownLoader {
      * Add and start a new task to the download queue.
      *
      * @param url A http URL user should be provided
+     * @param method method Http request method
+     * @return A unique id that the task belong to
+     * */
+    String add (String url, DownLoadTaskMethod method);
+    /**
+     * Add and start a new task to the download queue.
+     *
+     * @param url A http URL user should be provided
      * @param listener callback
      * @return A unique id that the task belong to
      * */
     String add (String url, DownLoadTaskListener listener);
+    /**
+     * Add and start a new task to the download queue.
+     *
+     * @param url A http URL user should be provided
+     * @param listener callback
+     * @param method method Http request method
+     * @return A unique id that the task belong to
+     * */
+    String add (String url, DownLoadTaskListener listener, DownLoadTaskMethod method);
     /**
      * Add and start a new task to the download queue.
      *
@@ -101,9 +126,26 @@ public interface DownLoader {
      *
      * @param id The task's unique id
      * @param url A http URL user should be provided
+     * @param method method Http request method
+     * */
+    void add (String id, String url, DownLoadTaskMethod method);
+    /**
+     * Add and start a new task to the download queue.
+     *
+     * @param id The task's unique id
+     * @param url A http URL user should be provided
      * @param listener callback
      * */
     void add (String id, String url, DownLoadTaskListener listener);
+    /**
+     * Add and start a new task to the download queue.
+     *
+     * @param id The task's unique id
+     * @param url A http URL user should be provided
+     * @param listener callback
+     * @param method method Http request method
+     * */
+    void add (String id, String url, DownLoadTaskListener listener, DownLoadTaskMethod method);
     /**
      * Remove a running or waitting task in the download queue.
      *

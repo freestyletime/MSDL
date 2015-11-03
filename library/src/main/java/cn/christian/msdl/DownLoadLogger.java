@@ -21,7 +21,7 @@ class DownLoadLogger {
 
     //-----------------------------------------
 
-    public static boolean DEBUG = true;
+    public static boolean DEBUG = false;
 
     public void debug(String message){
         if(DEBUG){

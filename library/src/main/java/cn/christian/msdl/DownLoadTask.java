@@ -14,12 +14,21 @@ package cn.christian.msdl;
 class DownLoadTask extends DownLoadUserTask implements Cloneable{
 
     public boolean isCancel = false;
+    public DownLoadTaskMethod method;
 
     DownLoadTask(String id, String url, String path) {
         super();
         this.id = id;
         this.url = url;
         this.path = path;
+    }
+
+    DownLoadTask(String id, String url, String path, DownLoadTaskMethod method) {
+        super();
+        this.id = id;
+        this.url = url;
+        this.path = path;
+        this.method = method;
     }
 
     @Override

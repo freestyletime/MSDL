@@ -30,6 +30,8 @@ public class DownLoadManagerService {
     private final int defaultThreadSize = 1;
     private final long defaultRepeatTime = 1000;
 
+    private DownLoadTaskMethod defaultRequestMethod = DownLoadTaskMethod.GET;
+
     private ExecutorService threadPool;
     private Queue<DownLoadTask> wattingTasks = new LinkedList<DownLoadTask>();
     private Queue<DownLoadTask> runningTasks = new LinkedList<DownLoadTask>();
@@ -212,6 +214,10 @@ public class DownLoadManagerService {
         this.repeatTime = repeatTime;
     }
 
+    void setRequestMethod (DownLoadTaskMethod defaultRequestMethod) {
+        defaultRequestMethod = defaultRequestMethod;
+    }
+
     void setConnectTimeout(int timeout){
         connectionTimeout = timeout;
     }
@@ -244,6 +250,8 @@ public class DownLoadManagerService {
     void add(DownLoadTask task){
         if(task == null) return;
 
+        if(task.method == null) task.method = defaultRequestMethod;
+
         boolean isExecute = false;
 
         if(runningTasks.size() >= threadSize){
@@ -263,8 +271,6 @@ public class DownLoadManagerService {
     }
 
     void add(DownLoadTask task, DownLoadTaskListener listener){
-        if(listener == null) return;
-
         add(task);
         listeners.put(task.id, listener);
     }

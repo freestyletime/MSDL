@@ -1,14 +1,14 @@
 package cn.christian.msdl;
 
-import android.webkit.URLUtil;
-import org.apache.http.protocol.HTTP;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.regex.Pattern;
 
 /**
  * Created in IntelliJ IDEA.
@@ -49,10 +49,15 @@ class DownLoadTaskRunnable implements Callable<DownLoadTask> {
         if(check()){
             try {
                 download(setting());
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+                task.status = DownLoadTaskStatus.ERROR;
+                task.e = new DownLoadException(DownLoadTaskExceptionCode.MSDL_CODE_URL_INVALID);
             } catch(FileNotFoundException e) {
+                e.printStackTrace();
                 task.status = DownLoadTaskStatus.ERROR;
                 task.e = new DownLoadException(DownLoadTaskExceptionCode.MSDL_CODE_FILE_DISABLE);
-            }catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
                 task.status = DownLoadTaskStatus.ERROR;
                 task.e = new DownLoadException(e);
@@ -65,12 +70,6 @@ class DownLoadTaskRunnable implements Callable<DownLoadTask> {
     //-----------------------------------------
 
     private boolean check(){
-
-        if(task.url == null || !URLUtil.isValidUrl(task.url)){
-            task.status = DownLoadTaskStatus.ERROR;
-            task.e = new DownLoadException(DownLoadTaskExceptionCode.MSDL_CODE_URL_INVALID);
-            return false;
-        }
 
         file = new File(task.path);
         if(!file.exists()){
@@ -105,9 +104,12 @@ class DownLoadTaskRunnable implements Callable<DownLoadTask> {
                 task.e = new DownLoadException(DownLoadTaskExceptionCode.MSDL_CODE_DOWNLOAD_CANT_READ_FILE_LEN);
             }else if(length != file.length()){
                 conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("GET");
+                DownLoadTaskMethod method = task.method;
+                conn.setRequestMethod(method.getValue());
+                conn.setRequestProperty("Charsert", "UTF-8");
                 conn.setRequestProperty("Accept-Encoding", "*");
-                conn.setRequestProperty("Content-Type", "application/stream");
+                if(method == DownLoadTaskMethod.GET) conn.setRequestProperty("Content-Type", "application/stream");
+//              if(method == DownLoadTaskMethod.POST) conn.setRequestProperty("Content-Type", "application/stream");
                 conn.setRequestProperty("Range", "bytes=" + file.length() + "-");
                 Set<Map.Entry<String, String>> headerEntrys = headers.entrySet();
 
