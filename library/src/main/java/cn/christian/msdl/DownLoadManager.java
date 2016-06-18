@@ -55,7 +55,14 @@ public class DownLoadManager implements DownLoader{
 
     @Override
     public DownLoader addHeader(String key, String value) {
+        service.addHeader(key, value);
+        return this;
+    }
 
+    @Override
+    public DownLoader setMethod (DownLoadTaskMethod method) {
+        if(method != null)
+            service.setRequestMethod(method);
         return this;
     }
 
@@ -104,10 +111,28 @@ public class DownLoadManager implements DownLoader{
     }
 
     @Override
-    public String add(String url, DownLoadTaskListener listener) {
+    public String add (String url, DownLoadTaskMethod method) {
         if(null == url) return "";
 
+        DownLoadTask task = new DownLoadTask(DownLoadUtils.uniqueId(), url, DownLoadUtils.makePath(service.basePath, url), method);
+        service.add(task);
+        return task.id;
+    }
+
+    @Override
+    public String add(String url, DownLoadTaskListener listener) {
+        if(null == url || listener == null) return "";
+
         DownLoadTask task = new DownLoadTask(DownLoadUtils.uniqueId(), url, DownLoadUtils.makePath(service.basePath, url));
+        service.add(task, listener);
+        return task.id;
+    }
+
+    @Override
+    public String add (String url, DownLoadTaskListener listener, DownLoadTaskMethod method) {
+        if(null == url || listener == null) return "";
+
+        DownLoadTask task = new DownLoadTask(DownLoadUtils.uniqueId(), url, DownLoadUtils.makePath(service.basePath, url), method);
         service.add(task, listener);
         return task.id;
     }
@@ -120,10 +145,24 @@ public class DownLoadManager implements DownLoader{
     }
 
     @Override
-    public void add(String id, String url, DownLoadTaskListener listener) {
+    public void add (String id, String url, DownLoadTaskMethod method) {
         if(null == id || null == url || "".equals(id) || "".equals(url)) return;
         if(query(id) != null) return;
+        service.add(new DownLoadTask(id, url, DownLoadUtils.makePath(service.basePath, url), method));
+    }
+
+    @Override
+    public void add(String id, String url, DownLoadTaskListener listener) {
+        if(null == id || null == url || "".equals(id) || "".equals(url) || listener == null) return;
+        if(query(id) != null) return;
         service.add(new DownLoadTask(id, url, DownLoadUtils.makePath(service.basePath, url)), listener);
+    }
+
+    @Override
+    public void add (String id, String url, DownLoadTaskListener listener, DownLoadTaskMethod method) {
+        if(null == id || null == url || "".equals(id) || "".equals(url) || listener == null) return;
+        if(query(id) != null) return;
+        service.add(new DownLoadTask(id, url, DownLoadUtils.makePath(service.basePath, url), method), listener);
     }
 
     @Override

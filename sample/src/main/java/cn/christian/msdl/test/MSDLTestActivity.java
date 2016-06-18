@@ -3,6 +3,7 @@ package cn.christian.msdl.test;
 import android.app.ListActivity;
 import android.os.Bundle;
 import android.os.Environment;
+import cn.christian.msdl.DownLoadTaskMethod;
 import cn.christian.msdl.DownLoader;
 
 import java.util.LinkedList;
