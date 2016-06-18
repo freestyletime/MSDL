@@ -15,8 +15,12 @@ public enum DownLoadTaskMethod {
     GET("GET"), POST("POST");
 
     private String value;
-    public String getValue () { return value; }
-    DownLoadTaskMethod(String value){
+
+    DownLoadTaskMethod(String value) {
         this.value = value;
+    }
+
+    public String getValue() {
+        return value;
     }
 }

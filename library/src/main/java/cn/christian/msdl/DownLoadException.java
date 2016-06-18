@@ -15,29 +15,29 @@ public class DownLoadException extends RuntimeException {
 
     /**
      * Exception's error code
-     * */
+     */
     public int eCode = 0;
     /**
      * Exception's http status code
-     * */
+     */
     public int statusCode = 0;
 
-    public DownLoadException(int eCode){
+    public DownLoadException(int eCode) {
         super(code2message(eCode));
         this.eCode = eCode;
     }
 
-    public DownLoadException(String msg){
+    public DownLoadException(String msg) {
         super(msg);
         this.eCode = DownLoadTaskExceptionCode.MSDL_CODE_OTHER;
     }
 
-    public DownLoadException(Throwable e){
+    public DownLoadException(Throwable e) {
         super(e);
         this.eCode = DownLoadTaskExceptionCode.MSDL_CODE_OTHER;
     }
 
-    public DownLoadException(int eCode, int statusCode){
+    public DownLoadException(int eCode, int statusCode) {
         this(eCode);
         this.statusCode = statusCode;
     }
@@ -47,13 +47,12 @@ public class DownLoadException extends RuntimeException {
      *
      * @param eCode The code the user received when the download is doing.
      * @return The result of the exception
-     *
-     * */
-    private static String code2message(int eCode){
-        if(DownLoadTaskExceptionCode.MSDL_CODE_OTHER == eCode)
+     */
+    private static String code2message(int eCode) {
+        if (DownLoadTaskExceptionCode.MSDL_CODE_OTHER == eCode)
             throw new RuntimeException("Can't init DownLoadException in eCode of DownLoadTaskExceptionCode.MSDL_CODE_OTHER");
 
-        switch (eCode){
+        switch (eCode) {
             case DownLoadTaskExceptionCode.MSDL_CODE_URL_INVALID:
                 return "Error: URL is invalid";
             case DownLoadTaskExceptionCode.MSDL_CODE_FILE_DISABLE:
