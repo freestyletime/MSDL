@@ -1,6 +1,12 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.github.dcendents.android-maven'
+apply plugin: 'com.jfrog.bintray'
+
+version = "0.0.1"
 
 android {
+    resourcePrefix "Christian_"
+
     compileSdkVersion 21
     buildToolsVersion "22.0.1"
 
@@ -11,6 +17,13 @@ android {
         versionName "0.0.1"
     }
 
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_7
         targetCompatibility JavaVersion.VERSION_1_7
@@ -19,4 +32,69 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+}
+
+def website = 'https://github.com/freestyletime/MSDL'
+def gitsite = 'git@github.com:freestyletime/MSDL.git'
+
+install {
+    repositories.mavenInstaller {
+        pom {
+            project {
+                packaging 'aar'
+                name 'Java File DownloadManager'     //项目的描述 你可以多写一点
+                url website
+                licenses {
+                    license {
+                        name 'Original BSD license'
+                        url 'http://www.xfree86.org/3.3.6/COPYRIGHT2.html#6'
+                    }
+                }
+                developers {
+                    developer {
+                        id 'freestyletime@foxmail.com'        //填写的一些基本信息
+                        name 'ChristianChen'
+                        email 'freestyletime@foxmail.com'
+                    }
+                }
+                scm {
+                    connection gitsite
+                    developerConnection gitsite
+                    url website
+                }
+            }
+        }
+    }
+}
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+bintray {
+    user = properties.getProperty("bintray.user")
+    key = properties.getProperty("bintray.apikey")
+    configurations = ['archives']
+    pkg {
+        repo = "maven"
+        name = "MSDL"
+        websiteUrl = website
+        vcsUrl = gitsite
+        licenses = ["BSD license"]
+        publish = true
+    }
 }
