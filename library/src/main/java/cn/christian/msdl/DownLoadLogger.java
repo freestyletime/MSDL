@@ -17,31 +17,32 @@ import java.util.Calendar;
  */
 class DownLoadLogger {
 
-    public static boolean DEBUG = true;
-
-    //-----------------------------------------
     private final String TAG = "MSDL";
 
-    public void debug(String message) {
-        if (DEBUG) {
+    //-----------------------------------------
+
+    public static boolean DEBUG = true;
+
+    public void debug(String message){
+        if(DEBUG){
             Log.d(TAG, Calendar.getInstance().getTime().toLocaleString() + " >>> " + message);
         }
     }
 
-    public void info(String message) {
-        if (DEBUG) {
+    public void info(String message){
+        if(DEBUG){
             Log.i(TAG, Calendar.getInstance().getTime().toLocaleString() + " >>> " + message);
         }
     }
 
-    public void warn(String message) {
-        if (DEBUG) {
+    public void warn(String message){
+        if(DEBUG){
             Log.w(TAG, Calendar.getInstance().getTime().toLocaleString() + " >>> " + message);
         }
     }
 
-    public void error(String message) {
-        if (DEBUG) {
+    public void error(String message){
+        if(DEBUG){
             Log.e(TAG, Calendar.getInstance().getTime().toLocaleString() + " >>> " + message);
         }
     }

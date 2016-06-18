@@ -12,10 +12,7 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import cn.christian.msdl.DownLoadException;
-import cn.christian.msdl.DownLoadTaskListener;
-import cn.christian.msdl.DownLoadUserTask;
-import cn.christian.msdl.DownLoader;
+import cn.christian.msdl.*;
 
 import java.io.File;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -31,67 +28,27 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @Time : 5/6/15 11:17 AM
  * @Description :
  */
-public class MSDLTestItem implements DownLoadTaskListener {
+public class MSDLTestItem implements DownLoadTaskListener{
 
     Context c;
     DownLoader d;
     MSDLTestBean b;
-    View root;
-    ViewRoot tag;
-    /**
-     * 0-start 1-watting 2-running 4-cancel 5-error 6-finish
-     */
-    AtomicInteger flag = new AtomicInteger(0);
-    AtomicInteger clickFlag = new AtomicInteger(0);
-    private Handler handler = new Handler(Looper.getMainLooper()) {
-        @Override
-        public void handleMessage(Message msg) {
-            if (tag == null) return;
-            int flag = msg.what;
-            int clickFlag = MSDLTestItem.this.clickFlag.get();
 
-            switch (flag) {
-                case 1:
-                    tag.btn.setText(R.string.waiting);
-                    break;
-                case 2:
-                    tag.process.setText(String.format(c.getString(R.string.process), msg.arg2, b.length));
-                    tag.bar.setProgress(msg.arg1);
-                    tag.btn.setText(R.string.cancle);
-                    break;
-                case 4:
-                    tag.btn.setText(R.string.start);
-                    Toast.makeText(c, b.name + "\n" + "被从下载队列中移除", Toast.LENGTH_LONG).show();
-                    break;
-                case 5:
-                    tag.btn.setText(R.string.start);
-                    Toast.makeText(c, b.name + "\n" + ((String) msg.obj), Toast.LENGTH_LONG).show();
-                    break;
-                case 6:
-                    tag.btn.setText(R.string.finish);
-                    tag.bar.setProgress(100);
-                    Toast.makeText(c, b.name + "\n" + "下载完成", Toast.LENGTH_LONG).show();
-                    break;
-            }
-
-            /** 0-start 1-watting 2-running 4-cancel 5-error 6-finish*/
-            if ((clickFlag == 0 || clickFlag == 4 || clickFlag == 5 && flag == 1 || flag == 2) ||
-                    (clickFlag == 1 && flag == 4) || clickFlag == 2 ||
-                    (flag == 1 || flag == 2) || flag == 5 || flag == 6) {
-                tag.btn.setEnabled(true);
-                root.invalidate();
-            }
-        }
-    };
-
-    MSDLTestItem(Context c, DownLoader d, MSDLTestBean b) {
+    MSDLTestItem(Context c, DownLoader d, MSDLTestBean b){
         this.c = c;
         this.d = d;
         this.b = b;
     }
 
-    View getView() {
-        if (root == null) {
+    View root;
+    ViewRoot tag;
+
+    /** 0-start 1-watting 2-running 4-cancel 5-error 6-finish*/
+    AtomicInteger flag = new AtomicInteger(0);
+    AtomicInteger clickFlag = new AtomicInteger(0);
+
+    View getView(){
+        if(root == null) {
             root = LayoutInflater.from(c).inflate(R.layout.item, null);
 
             tag = new ViewRoot();
@@ -136,33 +93,33 @@ public class MSDLTestItem implements DownLoadTaskListener {
         return root;
     }
 
-    private void setStatus(ViewRoot tag) {
+    private void setStatus(ViewRoot tag){
         DownLoadUserTask task = d.query(b.id);
 
         //----------------------------------------
         long p = 0;
         File f = new File(b.path, b.name);
-        if (f.exists()) p = f.length();
+        if(f.exists()) p = f.length();
         tag.process.setText(String.format(c.getString(R.string.process), p, b.length));
         tag.bar.setProgress(((int) (p * 100 / b.length)));
         //----------------------------------------
 
-        if (task == null) {
-            if (p == b.length) {
+        if(task == null){
+            if(p == b.length){
                 tag.btn.setText(R.string.finish);
                 flag.set(6);
-            } else {
-                if (p == 0)
+            }else {
+                if(p == 0)
                     tag.btn.setText(R.string.start);
                 else
                     tag.btn.setText(R.string.resume);
 
                 flag.set(0);
             }
-        } else {
+        }else{
             d.setOnDownLoadTaskListener(b.id, this);
             int btnStatusRes;
-            switch (task.status) {
+            switch (task.status){
                 case RUNNING:
                     btnStatusRes = R.string.cancle;
                     flag.set(2);
@@ -192,28 +149,24 @@ public class MSDLTestItem implements DownLoadTaskListener {
     @Override
     public void running(String id, long length, long process) {
         flag.set(2);
-        int percent = (int) ((process * 100) / length);
-        Message.obtain(handler, flag.get(), percent, (int) process).sendToTarget();
+        int percent = (int)((process * 100) / length);
+        Message.obtain(handler, flag.get(), percent, (int)process).sendToTarget();
     }
-
     @Override
     public void waitting(String id) {
         flag.set(1);
         Message.obtain(handler, flag.get()).sendToTarget();
     }
-
     @Override
     public void finish(String id, String path) {
         flag.set(6);
         Message.obtain(handler, flag.get()).sendToTarget();
     }
-
     @Override
     public void cancel(String id) {
         flag.set(4);
         Message.obtain(handler, flag.get()).sendToTarget();
     }
-
     @Override
     public void error(String id, DownLoadException e) {
         flag.set(5);
@@ -226,7 +179,48 @@ public class MSDLTestItem implements DownLoadTaskListener {
         c.startActivity(intent);
     }
 
-    private static class ViewRoot {
+    private Handler handler = new Handler(Looper.getMainLooper()){
+        @Override
+        public void handleMessage(Message msg) {
+            if(tag == null) return;
+            int flag = msg.what;
+            int clickFlag = MSDLTestItem.this.clickFlag.get();
+
+            switch (flag){
+                case 1:
+                    tag.btn.setText(R.string.waiting);
+                    break;
+                case 2:
+                    tag.process.setText(String.format(c.getString(R.string.process), msg.arg2, b.length));
+                    tag.bar.setProgress(msg.arg1);
+                    tag.btn.setText(R.string.cancle);
+                    break;
+                case 4:
+                    tag.btn.setText(R.string.start);
+                    Toast.makeText(c, b.name + "\n" + "被从下载队列中移除",Toast.LENGTH_LONG).show();
+                    break;
+                case 5:
+                    tag.btn.setText(R.string.start);
+                    Toast.makeText(c, b.name + "\n" + ((String)msg.obj),Toast.LENGTH_LONG).show();
+                    break;
+                case 6:
+                    tag.btn.setText(R.string.finish);
+                    tag.bar.setProgress(100);
+                    Toast.makeText(c, b.name + "\n" + "下载完成",Toast.LENGTH_LONG).show();
+                    break;
+            }
+
+            /** 0-start 1-watting 2-running 4-cancel 5-error 6-finish*/
+            if((clickFlag == 0 || clickFlag == 4 || clickFlag == 5 && flag == 1 || flag == 2) ||
+                    (clickFlag == 1 && flag == 4) || clickFlag == 2 ||
+                    (flag == 1 || flag == 2) || flag == 5 || flag == 6) {
+                tag.btn.setEnabled(true);
+                root.invalidate();
+            }
+        }
+    };
+
+    private static class ViewRoot{
         TextView name;
         TextView path;
         TextView process;

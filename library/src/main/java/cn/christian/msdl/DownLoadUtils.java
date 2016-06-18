@@ -29,8 +29,8 @@ class DownLoadUtils {
      *
      * @param obj The object you want to find.
      * @return User's method
-     */
-    public static Method inject(Object obj) {
+     * */
+    public static Method inject(Object obj){
         lock.lock();
         try {
             Method[] methods = obj.getClass().getDeclaredMethods();
@@ -66,7 +66,7 @@ class DownLoadUtils {
                 }
             }
             return null;
-        } finally {
+        }finally {
             lock.unlock();
         }
     }
@@ -75,12 +75,12 @@ class DownLoadUtils {
      * Create a unique id by current time and others.
      *
      * @return Unique id
-     */
+     * */
     public static String uniqueId() {
         lock.lock();
         try {
             StringBuilder sb = new StringBuilder(UUID.randomUUID().toString());
-            sb.append("-" + Calendar.getInstance().getTimeInMillis());
+            sb.append("-"+Calendar.getInstance().getTimeInMillis());
 
             return sb.toString();
         } finally {
@@ -92,10 +92,10 @@ class DownLoadUtils {
      * Create a file path base on a url.
      *
      * @param basePath Base directory
-     * @param url      Download url
+     * @param url Download url
      * @return File path
-     */
-    public static String makePath(String basePath, String url) {
+     * */
+    public static String makePath(String basePath, String url){
         return basePath + File.separator + url.substring(url.lastIndexOf("/"));
     }
 
@@ -103,15 +103,15 @@ class DownLoadUtils {
      * Create a directory and his parent
      *
      * @param dir base directory
-     */
-    public static void mkdir(File dir) {
+     * */
+    public static void mkdir(File dir){
         lock.lock();
         try {
             if (!dir.exists()) {
                 mkdir(dir.getParentFile());
                 dir.mkdir();
             }
-        } finally {
+        }finally {
             lock.unlock();
         }
     }

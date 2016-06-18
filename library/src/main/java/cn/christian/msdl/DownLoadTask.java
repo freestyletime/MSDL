@@ -11,7 +11,7 @@ package cn.christian.msdl;
  * @time 14-9-16 上午11:48
  * @describtion A inner entity
  */
-class DownLoadTask extends DownLoadUserTask implements Cloneable {
+class DownLoadTask extends DownLoadUserTask implements Cloneable{
 
     public boolean isCancel = false;
 

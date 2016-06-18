@@ -12,13 +12,9 @@ package cn.christian.msdl;
  * @describtion User asynchronous callback
  */
 public interface DownLoadTaskListener {
-    void running(String id, long length, long process);
-
-    void waitting(String id);
-
-    void finish(String id, String path);
-
-    void cancel(String id);
-
-    void error(String id, DownLoadException e);
+    void running (String id, long length, long process);
+    void waitting (String id);
+    void finish (String id, String path);
+    void cancel (String id);
+    void error (String id, DownLoadException e);
 }
