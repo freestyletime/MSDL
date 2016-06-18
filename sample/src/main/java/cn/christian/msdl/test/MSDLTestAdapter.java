@@ -21,7 +21,7 @@ public class MSDLTestAdapter extends BaseAdapter {
 
     List<MSDLTestItem> beans;
 
-    MSDLTestAdapter(List<MSDLTestItem> beans){
+    MSDLTestAdapter(List<MSDLTestItem> beans) {
         this.beans = beans;
     }
 
