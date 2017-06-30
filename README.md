@@ -1,7 +1,7 @@
 Java File DownloadManager
 ========================================
-###Multi - Single Download Simple Framework
-#####This is a file download simple framework based on Java and you can use it to download and manage any file.
+### Multi - Single Download Simple Framework
+##### This is a file download simple framework based on Java and you can use it to download and manage any file.
 ***
 ##### feature:
       1. Support task Automatic queue;
