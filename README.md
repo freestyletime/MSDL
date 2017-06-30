@@ -18,8 +18,8 @@ Java File DownloadManager
       <uses-permission android:name="android.permission.INTERNET"/>
       <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 ***
-###ProGuard configuration
-#####ProGuard obfuscates method names. And the fun methods can renamed because they are accessed using reflection by annotation of `DownLoadCallback`. Use the following snip in your ProGuard configuration file (proguard.cfg):
+### ProGuard configuration
+##### ProGuard obfuscates method names. And the fun methods can renamed because they are accessed using reflection by annotation of `DownLoadCallback`. Use the following snip in your ProGuard configuration file (proguard.cfg):
       -dontwarn cn.christian.**
       -keepattributes *Annotation*
       -keep class cn.christian.** { *; }
@@ -27,5 +27,5 @@ Java File DownloadManager
             @cn.christian.msdl.DownLoadCallback *;
       }
 ***
-###Copyright and License
-#####Code released under the BSD license.
+### Copyright and License
+##### Code released under the BSD license.
